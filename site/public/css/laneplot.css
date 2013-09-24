@@ -1,0 +1,57 @@
+/* lanePlot */
+.lanePlot {
+    font-size: 1em;
+    margin:0;
+    padding:0;
+    color:#000;
+}
+
+.clearfix {
+    clear: both;
+}
+
+/* labelContainer */
+.lanePlot > .labelContainer {
+    float: left;
+    width: 300px;
+    margin-left: -100%;
+    border-right: 1px solid #E9E9FB;
+}
+
+.lanePlot > .labelContainer div.label {
+    padding: 5px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.lanePlot > .labelContainer div:nth-child(odd) {
+    background: #F2F2FF;
+}
+
+/* eventContainer */
+.lanePlot > .eventContainer {
+    float: left;
+    width: 100%;
+}
+
+.lanePlot > .eventContainer .svgWrapper {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+    margin-left: 300px;
+}
+
+
+
+.axis text {
+    font: 10px sans-serif;
+}
+
+.axis line,
+.axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
