@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>LanePlot DEMO</title>
     <link rel="stylesheet" href="laneplot.css" type="text/css" media="screen"/>
     <script type="text/javascript" src="jquery-1.10.2.js"></script>
@@ -16,11 +16,19 @@
         }
 
         .red {
-            background: red;
+            fill: #FF6B6B;
+        }
+
+        .green {
+            fill: #CDFFA5;
         }
 
         .blue {
-            background: blue;
+            fill: #A5AAFF;
+        }
+
+        .yellow {
+            fill: #FFEEA5;
         }
     </style>
 </head>
@@ -33,16 +41,16 @@
             "description": "Label #1",
             "items": [
                 {
-                    "startDate": "2013 04 05",
-                    "endDate": "2013 10 05",
-                    "progressDate": "2013 08 05",
+                    "startDate": "2013/04/05",
+                    "endDate": "2013/6/05",
+                    "progressDate": "2013/05/20",
                     "classes": ["red"],
                     "label": "Robitussin"
                 },
                 {
-                    "startDate": "2013 07 12",
-                    "endDate": "2013 08 30",
-                    "progressDate": "2013 08 30",
+                    "startDate": "2013/07/12",
+                    "endDate": "2013/08/30",
+                    "progressDate": "2013/08/30",
                     "classes": ["blue"],
                     "label": "Diazepam"
                 }
@@ -53,17 +61,17 @@
             "description": "Label #2",
             "items": [
                 {
-                    "startDate": "2013 04 15",
-                    "endDate": "2013 11 04",
-                    "progressDate": "2013 06 05",
-                    "classes": ["red"],
+                    "startDate": "2013/03/30",
+                    "endDate": "2013/05/05",
+                    "progressDate": "2013/05/05",
+                    "classes": ["yellow"],
                     "label": "Robitussin 2"
                 },
                 {
-                    "startDate": "(2013 06 06",
-                    "endDate": "2013 06 20",
-                    "progressDate": "2013 06 16",
-                    "classes": ["blue"],
+                    "startDate": "2013/06/06",
+                    "endDate": "2013/06/20",
+                    "progressDate": "2013/06/16",
+                    "classes": ["yellow"],
                     "label": "Diazepam 2"
                 }
             ]
@@ -73,16 +81,16 @@
             "description": "Long Label #3 Long Label #3 Long Label #3 Long Label #3",
             "items": [
                 {
-                    "startDate": "2013 04 15",
-                    "endDate": "2013 11 04",
-                    "progressDate": "2013 06 05",
-                    "classes": ["red"],
+                    "startDate": "2013/05/06",
+                    "endDate": "2013/06/20",
+                    "progressDate": "2013/06/01",
+                    "classes": ["blue"],
                     "label": "Robitussin 3"
                 },
                 {
-                    "startDate": "2013 06 06",
-                    "endDate": "2013 06 20",
-                    "progressDate": "2013 06 16",
+                    "startDate": "2013/08/01",
+                    "endDate": "2013/10/10",
+                    "progressDate": "2013/10/10",
                     "classes": ["blue"],
                     "label": "Diazepam 3"
                 }
@@ -93,17 +101,17 @@
             "description": "Label #4",
             "items": [
                 {
-                    "startDate": "2013 04 15",
-                    "endDate": "2013 11 04",
-                    "progressDate": "2013 06 05",
-                    "classes": ["red"],
+                    "startDate": "2013/04/01",
+                    "endDate": "2013/07/01",
+                    "progressDate": "2013/06/01",
+                    "classes": ["green"],
                     "label": "Robitussin 4"
                 },
                 {
-                    "startDate": "2013 06 06",
-                    "endDate": "2013 06 20",
-                    "progressDate": "2013 06 16",
-                    "classes": ["blue"],
+                    "startDate": "2013/08/01",
+                    "endDate": "2013/09/01",
+                    "progressDate": "2013/08/20",
+                    "classes": ["green"],
                     "label": "Diazepam 4"
                 }
             ]
@@ -118,11 +126,11 @@
             data: testData,
             settings: {
                 boundaries: {
-                    startDate: "2013 03 05",
-                    endDate: "2013 10 15"
+                    startDate: "2013/03/05",
+                    endDate: "2013/10/15"
                 },
                 viewport: {
-                    width: 604800000,
+                    width: 2629743830, // 1 month in miliseconds
                     position: null
                 },
                 laneHeight: 5

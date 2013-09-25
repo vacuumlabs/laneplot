@@ -64,7 +64,7 @@
 
             // window resize
             $(window).resize(function () {
-                graphics.redraw();
+                g.resize($(svgWrapper).width());
             });
 
             // onClick callback
@@ -84,12 +84,16 @@
                 lane.items.forEach(function (item) {
                     if (item.date) {
                         item.date = new Date(item.date);
-                    } else if (item.startDate) {
-                        item.startDate = new Date(item.startDate);
-                    } else if (item.endDate) {
-                        item.endDate = new Date(item.endDate);
-                    } else if (item.progressDate) {
-                        item.progressDate = new Date(item.progressDate);
+                    } else {
+                        if (item.startDate) {
+                            item.startDate = new Date(item.startDate);
+                        }
+                        if (item.endDate) {
+                            item.endDate = new Date(item.endDate);
+                        }
+                        if (item.progressDate) {
+                            item.progressDate = new Date(item.progressDate);
+                        }
                     }
                 });
             });
@@ -117,11 +121,10 @@
         }
 
         // d3 graphics
-        function graphics(laneHeight, laneCount, viewportRealWidth, viewportWidth) {
+        function graphics(laneHeight, laneCount, viewportWidth, viewportMiliseconds) {
             // init size
-            var zoom = 86400000, //1 day zoom
-                unitSize = viewportRealWidth / viewportWidth,
-                svgWidth = 1400,
+            var unitSize = viewportWidth / viewportMiliseconds,
+                svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize,
                 svgHeight = laneHeight * laneCount + 50;
 
             // create svg
@@ -129,42 +132,106 @@
                 .append("svg:svg")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight);
+//                .attr("transform","scale(0.10,1)");
 
             // render lanes
-            for (var i = 0; i <= laneCount; i++) {
-                svg.append("svg:line")
+            var lanesGroup = svg.append("g")
+                .attr("class", "lanes");
+            for (var i = 0; i < laneCount; i++) {
+                lanesGroup.append("svg:line")
                     .attr("x1", 0)
                     .attr("y1", i * laneHeight)
                     .attr("x2", svgWidth)
                     .attr("y2", i * laneHeight)
                     .style("stroke", "rgb(233,233,251)")
                     .style("stroke-width", 2);
+
+                // render items
+                config.data[i].items.forEach(function (item) {
+//                    svg.append("svg:rect")
+//                        .attr("x", Math.ceil(item.startDate * unitSize))
+//                        .attr("y", i * laneHeight)
+//                        .attr("width", Math.ceil(item.endDate * unitSize))
+//                        .attr("height", (i+1) * laneHeight);
+                    var margin = 5,
+                        recX = Math.abs(item.startDate - config.settings.boundaries.startDate) * unitSize,
+                        recY = i * laneHeight + margin,
+                        recHeight = laneHeight - 2 * margin,
+                        recEndWidth = Math.abs(item.startDate - item.endDate) * unitSize,
+                        recProgressWidth = Math.abs(item.startDate - item.progressDate) * unitSize,
+                        recClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
+                        textX = recX + 2 * margin,
+                        textY = recY + recHeight / 2,
+                        intervalGroup = svg.append("g")
+                            .attr("class", "interval");
+
+                    intervalGroup.append("rect")
+                        .attr("x", recX)
+                        .attr("y", recY)
+                        .attr("width", recEndWidth)
+                        .attr("height", recHeight)
+                        .attr("rx", 10)
+                        .attr("fill", "#DCDCEA");
+                    intervalGroup.append("rect")
+                        .attr("x", recX)
+                        .attr("y", recY)
+                        .attr("width", recProgressWidth)
+                        .attr("height", recHeight)
+                        .attr("rx", 10)
+                        .attr("class", recClasses);
+                    intervalGroup.append("text")
+                        .attr("x", textX)
+                        .attr("y", textY)
+                        .text(item.label)
+                        .attr("alignment-baseline", "middle");
+                });
+//                for (var j = 0; j < config.data[i].items.length; j++) {
+//
+//                    console.log(parseFloat(config.data[i]));
+//                    console.log(parseFloat(config.data[i].items[j].startDate) * unitSize);
+//                    console.log(parseFloat(config.data[i].items[j].endDate) * unitSize);
+//                    console.log('-------');
+//                }
             };
 
-            // test x Axis
+            // render x axis
             var t1 = config.settings.boundaries.startDate,
-                t2 = config.settings.boundaries.endDate,
-                t0 = d3.time.month.offset(t1, -1),
-                t3 = d3.time.month.offset(t2, +1);
+                t2 = config.settings.boundaries.endDate;
             var x = d3.time.scale()
-                .domain([t0, t3])
-                .range([t0, t3].map(d3.time.scale()
-                    .domain([t0, t3])
+                .domain([t1, t2])
+                .range([t1, t2].map(d3.time.scale()
+                    .domain([t1, t2])
                     .range([0, svgWidth])));
             var xAxis = d3.svg.axis()
                 .scale(x)
-                .orient("bottom");
+                .orient("bottom")
+                .tickSize(-svgHeight)
             svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + (svgHeight - 50) + ")")
+                .attr("transform", "translate(0, " + (svgHeight - 50) + ")")
                 .call(xAxis)
+//                .classed("minor", true)
                 .selectAll("text")
                 .attr("y", 6)
                 .attr("x", 6)
                 .style("text-anchor", "start");
 
-            graphics.redraw = function () {
-                // redraw todo
+            graphics.resize = function (newViewportWidth) {
+                var ratio = newViewportWidth / viewportWidth;
+//                console.log(viewportWidth, newViewportWidth, ratio);
+                viewportWidth = newViewportWidth;
+                unitSize = viewportWidth / viewportMiliseconds,
+                    svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize;
+
+                svg.attr("width", svgWidth);
+                svg.attr("transform", "scale(" + ratio + ",1)");
+//                x = d3.time.scale()
+//                    .domain([t1, t2])
+//                    .range([t1, t2].map(d3.time.scale()
+//                        .domain([t1, t2])
+//                        .range([0, svgWidth])));
+//                xAxis.scale(x);
+
                 return graphics;
             }
 

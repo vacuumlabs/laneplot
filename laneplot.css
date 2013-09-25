@@ -13,7 +13,7 @@
 /* labelContainer */
 .lanePlot > .labelContainer {
     float: left;
-    width: 300px;
+    width: 126px;
     margin-left: -100%;
     border-right: 1px solid #E9E9FB;
 }
@@ -39,19 +39,26 @@
 .lanePlot > .eventContainer .svgWrapper {
     overflow-x: scroll;
     -webkit-overflow-scrolling: touch;
-    margin-left: 300px;
+    margin-left: 126px;
 }
 
 
 
 .axis text {
     font: 10px sans-serif;
+    /*stroke: #000;*/
+    /*fill: #000;*/
 }
 
 .axis line,
 .axis path {
     fill: none;
     stroke: #000;
+    /*stroke: #DCDCEA;*/
+    /*stroke-width: 2;*/
     shape-rendering: crispEdges;
 }
 
+.axis line {
+    stroke-dasharray: 2,2;
+}
