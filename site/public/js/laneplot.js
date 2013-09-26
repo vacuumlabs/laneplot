@@ -114,9 +114,23 @@
             var label = $('<div/>', {
                 'class': 'label',
                 'style': 'height:' + config.settings.laneHeight + 'em;' +
-                    'line-height:' + config.settings.laneHeight + 'em;',
-                'html': lane.description
+                    'line-height:' + config.settings.laneHeight + 'em;'
             });
+            if (lane.icon) {
+                var icon = $('<img/>', {
+                    'class': 'icon',
+                    'style': 'max-height:' + config.settings.laneHeight + 'em;',
+                    'src': lane.icon,
+                    'alt': 'icon'
+                });
+                label.append(icon);
+                // icon vertical center fix
+                icon.load(function () {
+                    icon.css('left', parseInt(label.css('padding-left')));
+                    label.css('padding-left', parseInt(label.css('padding-left')) + icon.width() + 2);
+                });
+            }
+            label.append(lane.description);
             labelContainer.append(label);
         }
 
@@ -125,74 +139,14 @@
             // init size
             var unitSize = viewportWidth / viewportMiliseconds,
                 svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize,
-                svgHeight = laneHeight * laneCount + 50;
+                svgHeight = laneHeight * laneCount + 20;
 
             // create svg
             var svg = d3.select($(svgWrapper)[0])
                 .append("svg:svg")
-                .attr("width", svgWidth)
+                .attr("width", svgWidth + 25)
                 .attr("height", svgHeight);
 //                .attr("transform","scale(0.10,1)");
-
-            // render lanes
-            var lanesGroup = svg.append("g")
-                .attr("class", "lanes");
-            for (var i = 0; i < laneCount; i++) {
-                lanesGroup.append("svg:line")
-                    .attr("x1", 0)
-                    .attr("y1", i * laneHeight)
-                    .attr("x2", svgWidth)
-                    .attr("y2", i * laneHeight)
-                    .style("stroke", "rgb(233,233,251)")
-                    .style("stroke-width", 2);
-
-                // render items
-                config.data[i].items.forEach(function (item) {
-//                    svg.append("svg:rect")
-//                        .attr("x", Math.ceil(item.startDate * unitSize))
-//                        .attr("y", i * laneHeight)
-//                        .attr("width", Math.ceil(item.endDate * unitSize))
-//                        .attr("height", (i+1) * laneHeight);
-                    var margin = 5,
-                        recX = Math.abs(item.startDate - config.settings.boundaries.startDate) * unitSize,
-                        recY = i * laneHeight + margin,
-                        recHeight = laneHeight - 2 * margin,
-                        recEndWidth = Math.abs(item.startDate - item.endDate) * unitSize,
-                        recProgressWidth = Math.abs(item.startDate - item.progressDate) * unitSize,
-                        recClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
-                        textX = recX + 2 * margin,
-                        textY = recY + recHeight / 2,
-                        intervalGroup = svg.append("g")
-                            .attr("class", "interval");
-
-                    intervalGroup.append("rect")
-                        .attr("x", recX)
-                        .attr("y", recY)
-                        .attr("width", recEndWidth)
-                        .attr("height", recHeight)
-                        .attr("rx", 10)
-                        .attr("fill", "#DCDCEA");
-                    intervalGroup.append("rect")
-                        .attr("x", recX)
-                        .attr("y", recY)
-                        .attr("width", recProgressWidth)
-                        .attr("height", recHeight)
-                        .attr("rx", 10)
-                        .attr("class", recClasses);
-                    intervalGroup.append("text")
-                        .attr("x", textX)
-                        .attr("y", textY)
-                        .text(item.label)
-                        .attr("alignment-baseline", "middle");
-                });
-//                for (var j = 0; j < config.data[i].items.length; j++) {
-//
-//                    console.log(parseFloat(config.data[i]));
-//                    console.log(parseFloat(config.data[i].items[j].startDate) * unitSize);
-//                    console.log(parseFloat(config.data[i].items[j].endDate) * unitSize);
-//                    console.log('-------');
-//                }
-            };
 
             // render x axis
             var t1 = config.settings.boundaries.startDate,
@@ -208,13 +162,128 @@
                 .tickSize(-svgHeight)
             svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0, " + (svgHeight - 50) + ")")
+                .attr("transform", "translate(0, " + (svgHeight - 20) + ")")
                 .call(xAxis)
-//                .classed("minor", true)
                 .selectAll("text")
                 .attr("y", 6)
                 .attr("x", 6)
                 .style("text-anchor", "start");
+
+            // render lanes
+            var lanesGroup = svg.append("g")
+                .attr("class", "lanes");
+            for (var i = 0; i < laneCount; i++) {
+                lanesGroup.append("svg:path")
+                    .attr("d", "M 0 " + (i * laneHeight) + " L " + svgWidth + " " + i * (laneHeight));
+
+                // render items
+                config.data[i].items.forEach(function (item) {
+                    // EVENT
+                    if (item.date) {
+                        // skip out of boundaries
+                        if (item.date < config.settings.boundaries.startDate) {
+                            return true;
+                        }
+                        // init
+                        var margin = 5,
+                            textX = Math.abs(item.date - config.settings.boundaries.startDate) * unitSize,
+                            textY = i * laneHeight + margin + laneHeight / 2,
+                            eventGroup = svg.append("g");
+                        // text
+                        eventGroup.attr("class", "event")
+                            .append("text")
+                            .attr("x", textX)
+                            .attr("y", textY)
+                            .text(item.label)
+                            .attr("class", recClasses)
+                            .attr("alignment-baseline", "middle");
+                        // INTERVAL
+                    } else {
+                        // skip/crop out of boundaries
+                        var itemStartDate = item.startDate;
+                        if (item.endDate < config.settings.boundaries.startDate) {
+                            return true;
+                        } else if (item.startDate < config.settings.boundaries.startDate) {
+                            item.startDate = config.settings.boundaries.startDate;
+                        }
+
+                        //init
+                        var margin = 5,
+                            recX = Math.abs(itemStartDate - config.settings.boundaries.startDate) * unitSize,
+                            recY = i * laneHeight + margin,
+                            recHeight = laneHeight - 2 * margin,
+                            recEndWidth = Math.abs(itemStartDate - item.endDate) * unitSize,
+                            recProgressWidth = Math.abs(itemStartDate - item.progressDate) * unitSize,
+                            recClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
+                            textX = recX + 2 * margin,
+                            textY = recY + laneHeight / 2,
+                            intervalGroup = svg.append("g")
+                                .attr("class", "interval");
+
+                        // full interval
+                        var rect = intervalGroup.append("rect")
+                            .attr("x", recX)
+                            .attr("y", recY)
+                            .attr("width", recEndWidth)
+                            .attr("height", recHeight)
+                            .attr("rx", 5)
+                            .attr("class", recClasses);
+                        // progress
+                        var progress = intervalGroup.append("rect")
+                            .attr("x", recX)
+                            .attr("y", recY)
+                            .attr("width", recProgressWidth)
+                            .attr("height", recHeight)
+                            .attr("rx", 5)
+                            .attr("class", recClasses + " progress");
+                        //icon
+//                        <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 30 40"
+//                        width="50" height="30">&Smile;</svg>
+                        if (item.icon && item.icon != "") {
+//                            var testsvg = intervalGroup.append("svg")
+//                                .attr("x", recX)
+//                                .attr("y", textY)
+//                                .attr("viewBox", "0 0 30 40")
+//                                .attr("preserveAspectRatio", "xMidYMid meet");
+//                            testsvg.append("image")
+//                                .attr("xlink:href", item.icon)
+//                                .attr("width", 10)
+//                                .attr("height", 10);
+//                                .attr("alignment-baseline", "middle");
+                        }
+                        // text
+                        var txt = intervalGroup.append("text")
+                            .attr("x", textX)
+                            .attr("y", textY)
+                            .text(item.label)
+                            .attr("class", recClasses)
+                            .attr("alignment-baseline", "middle");
+                        mywrap(txt, rect);
+//                        wordWrap(txt,0);
+//                        var bbox = txt.getBBox();
+//                        console.log(rect.attr('width'), txt.node().getComputedTextLength() );
+//                        console.log(rect.width(), bbox.width());
+                    }
+                });
+
+//                for (var j = 0; j < config.data[i].items.length; j++) {
+//
+//                    console.log(parseFloat(config.data[i]));
+//                    console.log(parseFloat(config.data[i].items[j].startDate) * unitSize);
+//                    console.log(parseFloat(config.data[i].items[j].endDate) * unitSize);
+//                    console.log('-------');
+//                }
+            }
+            ;
+
+//            svg.selectAll('.interval text')
+//                .each(fontSize)
+//                .each(wordWrap);
+            // translate (horizontal margin)
+//            var aa = d3.select(document.createElement("text"));
+//            $(aa).html("ehehheeheh");
+//            aa.node().getComputedTextLength();
+            svg.attr('transform', 'translate(15)');
 
             graphics.resize = function (newViewportWidth) {
                 var ratio = newViewportWidth / viewportWidth;
@@ -237,6 +306,110 @@
 
             return graphics;
         }
+
+        function mywrap(svgText, svgRect) {
+            var rectWidth = svgRect.attr('width');
+            var textWidth = svgText.node().getComputedTextLength();
+            textWidth += (svgText.attr('x') - svgRect.attr('x'));
+//            console.log(svgText.attr('x') - svgRect.attr('x'));
+            if (textWidth > rectWidth) {
+                var words = svgText.text().split(' ');
+                var line = new Array();
+                var word;
+                textWidth = 0;
+                while (textWidth < rectWidth) {
+                    word = words.shift();
+                    line.push(word);
+                    svgText.text(line.join(' ') + '...');
+                    textWidth = svgText.node().getComputedTextLength();
+                    textWidth += (svgText.attr('x') - svgRect.attr('x'));
+                }
+                line.pop()
+                svgText.text(line.join(' ') + '...');
+            }
+        }
+
+//        function fontSize(d, i) {
+//            var size = d.dx / 5;
+//            var words = d.data.key.split(' ');
+//            var word = words[0];
+//            var width = d.dx;
+//            var height = d.dy;
+//            var length = 0;
+//            d3.select(this).style("font-size", size + "px").text(word);
+//            while (((this.getBBox().width >= width) || (this.getBBox().height >= height)) && (size > 12)) {
+//                size--;
+//                d3.select(this).style("font-size", size + "px");
+//                this.firstChild.data = word;
+//            }
+//        }
+//
+//        function wordWrap(d, i) {
+//            var words = d.data.key.split(' ');
+//            var line = new Array();
+//            var length = 0;
+//            var text = "";
+//            var width = d.dx;
+//            var height = d.dy;
+//            var word;
+//            do {
+//                word = words.shift();
+//                line.push(word);
+//                if (words.length)
+//                    this.firstChild.data = line.join(' ') + " " + words[0];
+//                else
+//                    this.firstChild.data = line.join(' ');
+//                length = this.getBBox().width;
+//                if (length < width && words.length) {
+//                    ;
+//                }
+//                else {
+//                    text = line.join(' ');
+//                    this.firstChild.data = text;
+//                    if (this.getBBox().width > width) {
+//                        text = d3.select(this).select(function () {
+//                            return this.lastChild;
+//                        }).text();
+//                        text = text + "...";
+//                        d3.select(this).select(function () {
+//                            return this.lastChild;
+//                        }).text(text);
+//                        d3.select(this).classed("wordwrapped", true);
+//                        break;
+//                    }
+//                    else
+//                        ;
+//
+//                    if (text != '') {
+//                        d3.select(this).append("svg:tspan")
+//                            .attr("x", 0)
+//                            .attr("dx", "0.15em")
+//                            .attr("dy", "0.9em")
+//                            .text(text);
+//                    }
+//                    else
+//                        ;
+//
+//                    if (this.getBBox().height > height && words.length) {
+//                        text = d3.select(this).select(function () {
+//                            return this.lastChild;
+//                        }).text();
+//                        text = text + "...";
+//                        d3.select(this).select(function () {
+//                            return this.lastChild;
+//                        }).text(text);
+//                        d3.select(this).classed("wordwrapped", true);
+//
+//                        break;
+//                    }
+//                    else
+//                        ;
+//
+//                    line = new Array();
+//                }
+//            } while (words.length);
+//            this.firstChild.data = '';
+//        }
 
         // initialize every element
         this.each(function (index, element) {

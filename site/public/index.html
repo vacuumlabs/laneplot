@@ -15,30 +15,56 @@
             border: 1px solid #DEDEF9;
         }
 
-        .red {
-            fill: #FF6B6B;
+        .greenLabel {
+            color: #2F7A28;
+            font-weight: bold;
         }
 
-        .green {
-            fill: #CDFFA5;
+        rect.red.progress {
+            fill: #DD3000;
         }
 
-        .blue {
-            fill: #A5AAFF;
+        rect.red {
+            fill: #686868;
+            stroke: #7D7F7E;
+            stroke-width: 2;
         }
 
-        .yellow {
-            fill: #FFEEA5;
+        text.red {
+            fill: #FFF;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        rect.green.progress {
+            fill: #02A300;
+        }
+
+        rect.green {
+            fill: #686868;
+            stroke: #7D7F7E;
+            stroke-width: 2;
+        }
+
+        text.green {
+            fill: #FFF;
+            font-weight: bold;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
 <h1>LanePlot DEMO</h1>
 <script type="text/javascript">
+    var testBoundaries = {
+        startDate: "2013/03/05",
+        endDate: "2013/11/01"
+    };
     var testData = [
         {
-            "id": "#lane1",
-            "description": "Label #1",
+            "id": "#hospitalizacia",
+            "description": "Hospitalizácia",
+            "icon": "icons/hosp.png",
             "items": [
                 {
                     "startDate": "2013/04/05",
@@ -51,54 +77,54 @@
                     "startDate": "2013/07/12",
                     "endDate": "2013/08/30",
                     "progressDate": "2013/08/30",
-                    "classes": ["blue"],
+                    "classes": ["red"],
                     "label": "Diazepam"
                 }
             ]
         },
         {
-            "id": "#lane2",
-            "description": "Label #2",
+            "id": "#ine",
+            "description": "Iné vyšetrenia",
             "items": [
                 {
                     "startDate": "2013/03/30",
                     "endDate": "2013/05/05",
                     "progressDate": "2013/05/05",
-                    "classes": ["yellow"],
+                    "classes": ["green"],
                     "label": "Robitussin 2"
                 },
                 {
                     "startDate": "2013/06/06",
                     "endDate": "2013/06/20",
                     "progressDate": "2013/06/16",
-                    "classes": ["yellow"],
+                    "classes": ["green"],
                     "label": "Diazepam 2"
                 }
             ]
         },
         {
-            "id": "#lane3",
-            "description": "Long Label #3 Long Label #3 Long Label #3 Long Label #3",
+            "id": "#liekyA",
+            "description": "Lieky (typ A)",
             "items": [
                 {
                     "startDate": "2013/05/06",
                     "endDate": "2013/06/20",
                     "progressDate": "2013/06/01",
-                    "classes": ["blue"],
+                    "classes": ["red"],
                     "label": "Robitussin 3"
                 },
                 {
                     "startDate": "2013/08/01",
                     "endDate": "2013/10/10",
                     "progressDate": "2013/10/10",
-                    "classes": ["blue"],
+                    "classes": ["green"],
                     "label": "Diazepam 3"
                 }
             ]
         },
         {
-            "id": "#lane4",
-            "description": "Label #4",
+            "id": "#liekyB",
+            "description": "Lieky (typ B)",
             "items": [
                 {
                     "startDate": "2013/04/01",
@@ -118,25 +144,120 @@
         }
     ];
 
+    var testBoundaries2 = {
+        startDate: "2013/07/31",
+        endDate: "2013/10/01"
+    };
+    var testData2 = [
+        {
+            "id": "#hospitalizacia",
+            "description": "<span class='greenLabel'>Hospitalizácia</span>",
+            "icon": "icons/hosp.png",
+            "items": [
+                {
+                    "date": "2013/07/31",
+                    "classes": [],
+                    "icon": "icons/camera.png",
+                    "label": "EEG"
+                },
+                {
+                    "date": "2013/08/20",
+                    "classes": [],
+                    "icon": "icons/camera.png",
+                    "label": "CT Hlavy"
+                }
+            ]
+        },
+        {
+            "id": "#ine",
+            "description": "Iné vyšetrenia",
+            "items": [
+                {
+                    "date": "2013/08/02",
+                    "classes": [],
+                    "icon": "icons/note.png",
+                    "label": "X.100"
+                },
+                {
+                    "date": "2013/09/10",
+                    "classes": [],
+                    "icon": "icons/note.png",
+                    "label": "P279a"
+                }
+            ]
+        },
+        {
+            "id": "#liekyA1",
+            "description": "Lieky (typ <strong>A1</strong>)",
+            "items": [
+                {
+                    "startDate": "2013/08/28",
+                    "endDate": "2013/10/01",
+                    "progressDate": "2013/09/24",
+                    "classes": ["red"],
+                    "label": "LOMAC, cps 14x20 mg"
+                }
+            ]
+        },
+        {
+            "id": "#liekyA2",
+            "description": "Lieky (typ <strong>A2</strong>)",
+            "icon": "icons/warn.png",
+            "items": [
+                {
+                    "startDate": "2013/09/11",
+                    "endDate": "2013/10/01",
+                    "progressDate": "2013/09/24",
+                    "classes": ["red"],
+                    "label": "LOMAC, cps 14x20 mg"
+                }
+            ]
+        },
+        {
+            "id": "#liekyB",
+            "description": "Lieky (typ <strong>B</strong>)",
+            "items": [
+                {
+                    "startDate": "2013/08/07",
+                    "endDate": "2013/08/28",
+                    "progressDate": "2013/08/28",
+                    "classes": ["green"],
+                    "icon" : "icons/folder.png",
+                    "label": "TARKA 240 mg/2 mg tablety"
+                }
+            ]
+        },
+        {
+            "id": "#dlhodobe",
+            "description": "Dlhodobé lieky",
+            "items": [
+                {
+                    "startDate": "2013/08/01",
+                    "endDate": "2013/09/05",
+                    "progressDate": "2013/09/05",
+                    "classes": ["green"],
+                    "label": "Penbene, tbl flm 30x1 MU"
+                }
+            ]
+        }
+    ];
+
 
     // on ready
     $(function () {
         // create lanePlot
         $("#demo").lanePlot({
-            data: testData,
+            data: testData2,
             settings: {
-                boundaries: {
-                    startDate: "2013/03/05",
-                    endDate: "2013/10/15"
-                },
+                boundaries: testBoundaries2,
                 viewport: {
                     width: 2629743830, // 1 month in miliseconds
                     position: null
                 },
-                laneHeight: 5
+                laneHeight: 1.5
             },
             onLaneClick: function (event, lane) {
-                alert('klikol si na ' + lane.id);
+                alert('Klikol si na lane s ID: ' + lane.id);
             }
         });
     })
