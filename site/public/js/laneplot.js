@@ -64,7 +64,7 @@
 
             // window resize
             $(window).resize(function () {
-                g.resize($(svgWrapper).width());
+                g.resize($(svgWrapper).width(), config.settings.viewport.width);
             });
 
             // onClick callback
@@ -80,16 +80,25 @@
 
         // preprocess data
         function processData() {
+            var tBoundaries = {
+                'minDate': null,
+                'maxDate': null
+            };
+
+            // create date objects
             config.data.forEach(function (lane) {
                 lane.items.forEach(function (item) {
                     if (item.date) {
                         item.date = new Date(item.date);
+                        minMaxDate(item.date, tBoundaries);
                     } else {
                         if (item.startDate) {
                             item.startDate = new Date(item.startDate);
+                            minMaxDate(item.startDate, tBoundaries);
                         }
                         if (item.endDate) {
                             item.endDate = new Date(item.endDate);
+                            minMaxDate(item.endDate, tBoundaries);
                         }
                         if (item.progressDate) {
                             item.progressDate = new Date(item.progressDate);
@@ -98,14 +107,30 @@
                 });
             });
 
+            // init boundaries
             if (config.settings.boundaries.startDate != null) {
                 config.settings.boundaries.startDate = new Date(config.settings.boundaries.startDate);
+            } else if (tBoundaries.minDate != null) {
+                config.settings.boundaries.startDate = tBoundaries.minDate;
             }
             if (config.settings.boundaries.endDate != null) {
                 config.settings.boundaries.endDate = new Date(config.settings.boundaries.endDate);
+            } else if (tBoundaries.maxDate != null) {
+                config.settings.boundaries.endDate = tBoundaries.maxDate;
             }
             if (config.settings.viewport.position != null) {
                 config.settings.viewport.position = new Date(config.settings.viewport.position);
+            }
+        }
+
+        // find minimum/maximum date
+        function minMaxDate(date, tBoundaries) {
+            if (config.settings.boundaries.startDate == null
+                && (tBoundaries.minDate == null || tBoundaries.minDate > date)) {
+                tBoundaries.minDate = date;
+            } else if (config.settings.boundaries.endDate == null
+                && (tBoundaries.maxDate == null || tBoundaries.maxDate < date)) {
+                tBoundaries.maxDate = date;
             }
         }
 
@@ -113,8 +138,8 @@
         function createLabel(lane) {
             var label = $('<div/>', {
                 'class': 'label',
-                'style': 'height:' + config.settings.laneHeight + 'em;' +
-                    'line-height:' + config.settings.laneHeight + 'em;'
+                'style': 'height:' + config.settings.laneHeight + ';' +
+                    'line-height:' + config.settings.laneHeight + ';'
             });
             if (lane.icon) {
                 var icon = $('<img/>', {
@@ -139,14 +164,21 @@
             // init size
             var unitSize = viewportWidth / viewportMiliseconds,
                 svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize,
-                svgHeight = laneHeight * laneCount + 20;
+                svgHeight = laneHeight * laneCount + 20,
+                svgMargin = 5;
+            graphics.viewportWidth = viewportWidth;
+            graphics.svgHeight = svgHeight;
 
             // create svg
             var svg = d3.select($(svgWrapper)[0])
                 .append("svg:svg")
-                .attr("width", svgWidth + 25)
+                .attr("width", svgWidth + svgMargin)
                 .attr("height", svgHeight);
-//                .attr("transform","scale(0.10,1)");
+
+            //scroll to date
+            if (config.settings.viewport.position != null) {
+                $('.svgWrapper')[0].scrollLeft = Math.abs(config.settings.viewport.position - config.settings.boundaries.startDate) * unitSize;
+            }
 
             // render x axis
             var t1 = config.settings.boundaries.startDate,
@@ -159,7 +191,8 @@
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient("bottom")
-                .tickSize(-svgHeight)
+                .tickSize(-svgHeight);
+
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0, " + (svgHeight - 20) + ")")
@@ -185,18 +218,56 @@
                             return true;
                         }
                         // init
-                        var margin = 5,
-                            textX = Math.abs(item.date - config.settings.boundaries.startDate) * unitSize,
-                            textY = i * laneHeight + margin + laneHeight / 2,
-                            eventGroup = svg.append("g");
+                        var textX = Math.abs(item.date - config.settings.boundaries.startDate) * unitSize,
+                            textY = i * laneHeight + laneHeight / 2,
+                            textLeftPadding = 2,
+                            eventClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
+                            eventGroup = svg.append("g")
+                                .attr("class", "event");
+
+                        // text background
+                        var rect = eventGroup.insert("rect");
+
                         // text
-                        eventGroup.attr("class", "event")
-                            .append("text")
+                        var eventText = eventGroup.append("text")
                             .attr("x", textX)
                             .attr("y", textY)
                             .text(item.label)
-                            .attr("class", recClasses)
-                            .attr("alignment-baseline", "middle");
+                            .attr("class", eventClasses)
+                            .attr("transform", "translate(" + textLeftPadding + ", 0)")
+                            .attr("fullText", item.label);
+
+                        // text dimensions
+                        var textWidth = eventText.node().getBBox().width,
+                            textHeight = eventText.node().getBBox().height;
+                        /* IE fix */
+                        var browser = navigator.appName;
+                        if (browser == "Microsoft Internet Explorer") {
+                            eventText.attr("dy", textHeight / 3);
+                        }
+
+                        //icon
+                        if (item.icon && item.icon != "") {
+                            var img = eventGroup.append("image")
+                                .attr("xlink:href", item.icon)
+                                .attr("x", textX)
+                                .attr("y", textY - textHeight + textHeight / 2)
+                                .attr("width", textHeight)
+                                .attr("height", textHeight)
+                                .attr("transform", "translate(" + textLeftPadding + ", -" + 0 + ")");
+
+                            // increase left padding of event text
+                            textLeftPadding = 2 * textLeftPadding + parseInt(img.attr('width'));
+                            eventText.attr("transform", "translate(" + textLeftPadding + ", 1)");
+                        }
+
+                        // text background setup
+                        rect.attr("x", textX + 1)
+                            .attr("y", textY - textHeight + textHeight / 2)
+                            .attr("width", textWidth + textLeftPadding)
+                            .attr("height", textHeight)
+                            .attr("fill", "white");
+
                         // INTERVAL
                     } else {
                         // skip/crop out of boundaries
@@ -209,109 +280,149 @@
 
                         //init
                         var margin = 5,
-                            recX = Math.abs(itemStartDate - config.settings.boundaries.startDate) * unitSize,
-                            recY = i * laneHeight + margin,
-                            recHeight = laneHeight - 2 * margin,
-                            recEndWidth = Math.abs(itemStartDate - item.endDate) * unitSize,
-                            recProgressWidth = Math.abs(itemStartDate - item.progressDate) * unitSize,
-                            recClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
-                            textX = recX + 2 * margin,
-                            textY = recY + laneHeight / 2,
+                            rectX = Math.abs(itemStartDate - config.settings.boundaries.startDate) * unitSize,
+                            rectY = i * laneHeight + margin,
+                            rectHeight = laneHeight - 2 * margin,
+                            rectEndWidth = Math.abs(itemStartDate - item.endDate) * unitSize,
+                            rectProgressWidth = Math.abs(itemStartDate - item.progressDate) * unitSize,
+                            rectClasses = item.classes instanceof Array ? item.classes.join(' ') : '',
+                            textLeftPadding = 5,
                             intervalGroup = svg.append("g")
                                 .attr("class", "interval");
 
                         // full interval
                         var rect = intervalGroup.append("rect")
-                            .attr("x", recX)
-                            .attr("y", recY)
-                            .attr("width", recEndWidth)
-                            .attr("height", recHeight)
+                            .attr("x", rectX)
+                            .attr("y", rectY)
+                            .attr("width", rectEndWidth)
+                            .attr("height", rectHeight)
                             .attr("rx", 5)
-                            .attr("class", recClasses);
+                            .attr("class", rectClasses);
                         // progress
                         var progress = intervalGroup.append("rect")
-                            .attr("x", recX)
-                            .attr("y", recY)
-                            .attr("width", recProgressWidth)
-                            .attr("height", recHeight)
+                            .attr("x", rectX)
+                            .attr("y", rectY)
+                            .attr("width", rectProgressWidth)
+                            .attr("height", rectHeight)
                             .attr("rx", 5)
-                            .attr("class", recClasses + " progress");
+                            .attr("class", rectClasses + " progress");
                         //icon
-//                        <svg preserveAspectRatio="xMidYMid meet" viewBox="0 0 30 40"
-//                        width="50" height="30">&Smile;</svg>
                         if (item.icon && item.icon != "") {
-//                            var testsvg = intervalGroup.append("svg")
-//                                .attr("x", recX)
-//                                .attr("y", textY)
-//                                .attr("viewBox", "0 0 30 40")
-//                                .attr("preserveAspectRatio", "xMidYMid meet");
-//                            testsvg.append("image")
-//                                .attr("xlink:href", item.icon)
-//                                .attr("width", 10)
-//                                .attr("height", 10);
-//                                .attr("alignment-baseline", "middle");
+                            var img = intervalGroup.append("image")
+                                .attr("xlink:href", item.icon)
+                                .attr("x", rectX)
+                                .attr("y", rectY)
+                                .attr("width", rectHeight - 4)
+                                .attr("height", rectHeight - 4)
+                                .attr("transform", "translate(" + textLeftPadding + ", 1)");
+
+                            // increase left padding of interval text
+                            textLeftPadding = 2 * textLeftPadding + parseInt(img.attr('width'));
                         }
+
                         // text
                         var txt = intervalGroup.append("text")
-                            .attr("x", textX)
-                            .attr("y", textY)
+                            .attr("x", rectX)
+                            .attr("y", rectY)
                             .text(item.label)
-                            .attr("class", recClasses)
-                            .attr("alignment-baseline", "middle");
-                        mywrap(txt, rect);
-//                        wordWrap(txt,0);
-//                        var bbox = txt.getBBox();
-//                        console.log(rect.attr('width'), txt.node().getComputedTextLength() );
-//                        console.log(rect.width(), bbox.width());
+                            .attr("class", rectClasses)
+                            .attr("dx", textLeftPadding)
+                            .attr("dy", (rectHeight) / 2)
+                            .attr("fullText", item.label);
+                        /* IE fix */
+                        var browser = navigator.appName;
+                        if (browser == "Microsoft Internet Explorer") {
+                            var txtHeight = txt.node().getBBox().height;
+                            txt.attr("dy", "1.3em" );
+                        }
+
+                        // text overflow
+                        wrapText(txt, rect);
                     }
                 });
-
-//                for (var j = 0; j < config.data[i].items.length; j++) {
-//
-//                    console.log(parseFloat(config.data[i]));
-//                    console.log(parseFloat(config.data[i].items[j].startDate) * unitSize);
-//                    console.log(parseFloat(config.data[i].items[j].endDate) * unitSize);
-//                    console.log('-------');
-//                }
             }
             ;
+            svg.attr('transform', 'translate(4,0)');
 
-//            svg.selectAll('.interval text')
-//                .each(fontSize)
-//                .each(wordWrap);
-            // translate (horizontal margin)
-//            var aa = d3.select(document.createElement("text"));
-//            $(aa).html("ehehheeheh");
-//            aa.node().getComputedTextLength();
-            svg.attr('transform', 'translate(15)');
+            graphics.resize = function (newViewportWidth, viewportMiliseconds) {
+                var unitSize = newViewportWidth / viewportMiliseconds,
+                    svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize,
+                    svgMargin = 5,
+                    linearScale = d3.scale.linear()
+                        .domain([0, graphics.viewportWidth])
+                        .range([0, newViewportWidth]);
+                graphics.viewportWidth = newViewportWidth;
 
-            graphics.resize = function (newViewportWidth) {
-                var ratio = newViewportWidth / viewportWidth;
-//                console.log(viewportWidth, newViewportWidth, ratio);
-                viewportWidth = newViewportWidth;
-                unitSize = viewportWidth / viewportMiliseconds,
-                    svgWidth = Math.abs(config.settings.boundaries.startDate - config.settings.boundaries.endDate) * unitSize;
 
-                svg.attr("width", svgWidth);
-                svg.attr("transform", "scale(" + ratio + ",1)");
-//                x = d3.time.scale()
-//                    .domain([t1, t2])
-//                    .range([t1, t2].map(d3.time.scale()
-//                        .domain([t1, t2])
-//                        .range([0, svgWidth])));
-//                xAxis.scale(x);
+                // resize svg
+                svg.attr("width", svgWidth + svgMargin);
 
+                // resize lines
+                d3.selectAll(".lanes path").each(function () {
+                    var settings = d3.select(this).attr('d').split(" ");
+                    settings[4] = svgWidth;
+                    d3.select(this).attr('d', settings.join(" "));
+                });
+
+                // recreate x axis
+                d3.select(".x.axis").remove();
+                var t1 = config.settings.boundaries.startDate,
+                    t2 = config.settings.boundaries.endDate;
+                var x = d3.time.scale()
+                    .domain([t1, t2])
+                    .range([t1, t2].map(d3.time.scale()
+                        .domain([t1, t2])
+                        .range([0, svgWidth])));
+                var xAxis = d3.svg.axis()
+                    .scale(x)
+                    .orient("bottom")
+                    .tickSize(-graphics.svgHeight);
+
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0, " + (graphics.svgHeight - 20) + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .attr("y", 6)
+                    .attr("x", 6)
+                    .style("text-anchor", "start");
+
+                // resize/reposition rectangles
+                d3.selectAll(".interval rect, .event rect").each(function () {
+                    d3.select(this).attr('x', linearScale(d3.select(this).attr('x')));
+                    d3.select(this).attr('width', linearScale(d3.select(this).attr('width')));
+                });
+                // resize/reposition texts and icons
+                d3.selectAll(".interval text, .interval image, .event text, .event image").each(function () {
+                    d3.select(this).attr('x', linearScale(d3.select(this).attr('x')));
+                    //interval text wrap
+                    var parent = d3.select(this.parentNode);
+                    if (parent.attr('class') == 'interval') {
+                        var rect = parent.select('rect');
+                        var text = parent.select('text');
+                        wrapText(text, rect);
+                    }
+                });
                 return graphics;
             }
 
             return graphics;
         }
 
-        function mywrap(svgText, svgRect) {
+        // wrap long interval text
+        function wrapText(svgText, svgRect) {
+            var browserFix, browserFix2 = 0;
+            /* Firefox fix */
+            var browser = navigator.appName;
+            if (browser != "Firefox") {
+                browserFix = 20;
+                browserFix2 = 30;
+            }
+            svgText.text(svgText.attr('fullText'));
             var rectWidth = svgRect.attr('width');
             var textWidth = svgText.node().getComputedTextLength();
             textWidth += (svgText.attr('x') - svgRect.attr('x'));
-//            console.log(svgText.attr('x') - svgRect.attr('x'));
+
             if (textWidth > rectWidth) {
                 var words = svgText.text().split(' ');
                 var line = new Array();
@@ -323,93 +434,24 @@
                     svgText.text(line.join(' ') + '...');
                     textWidth = svgText.node().getComputedTextLength();
                     textWidth += (svgText.attr('x') - svgRect.attr('x'));
+
                 }
-                line.pop()
-                svgText.text(line.join(' ') + '...');
+                word = line.pop();
+
+                //one word
+                if (line.length < 1) {
+                    while (textWidth > rectWidth && word.length > 2) {
+                        word = word.substring(0,word.length-1);
+                        svgText.text(word + '...');
+                        textWidth = svgText.node().getComputedTextLength();
+                        textWidth += (svgText.attr('x') - svgRect.attr('x'));
+                        textWidth += browserFix2;
+                    }
+                } else {
+                    svgText.text(line.join(' ') + '...');
+                }
             }
         }
-
-//        function fontSize(d, i) {
-//            var size = d.dx / 5;
-//            var words = d.data.key.split(' ');
-//            var word = words[0];
-//            var width = d.dx;
-//            var height = d.dy;
-//            var length = 0;
-//            d3.select(this).style("font-size", size + "px").text(word);
-//            while (((this.getBBox().width >= width) || (this.getBBox().height >= height)) && (size > 12)) {
-//                size--;
-//                d3.select(this).style("font-size", size + "px");
-//                this.firstChild.data = word;
-//            }
-//        }
-//
-//        function wordWrap(d, i) {
-//            var words = d.data.key.split(' ');
-//            var line = new Array();
-//            var length = 0;
-//            var text = "";
-//            var width = d.dx;
-//            var height = d.dy;
-//            var word;
-//            do {
-//                word = words.shift();
-//                line.push(word);
-//                if (words.length)
-//                    this.firstChild.data = line.join(' ') + " " + words[0];
-//                else
-//                    this.firstChild.data = line.join(' ');
-//                length = this.getBBox().width;
-//                if (length < width && words.length) {
-//                    ;
-//                }
-//                else {
-//                    text = line.join(' ');
-//                    this.firstChild.data = text;
-//                    if (this.getBBox().width > width) {
-//                        text = d3.select(this).select(function () {
-//                            return this.lastChild;
-//                        }).text();
-//                        text = text + "...";
-//                        d3.select(this).select(function () {
-//                            return this.lastChild;
-//                        }).text(text);
-//                        d3.select(this).classed("wordwrapped", true);
-//                        break;
-//                    }
-//                    else
-//                        ;
-//
-//                    if (text != '') {
-//                        d3.select(this).append("svg:tspan")
-//                            .attr("x", 0)
-//                            .attr("dx", "0.15em")
-//                            .attr("dy", "0.9em")
-//                            .text(text);
-//                    }
-//                    else
-//                        ;
-//
-//                    if (this.getBBox().height > height && words.length) {
-//                        text = d3.select(this).select(function () {
-//                            return this.lastChild;
-//                        }).text();
-//                        text = text + "...";
-//                        d3.select(this).select(function () {
-//                            return this.lastChild;
-//                        }).text(text);
-//                        d3.select(this).classed("wordwrapped", true);
-//
-//                        break;
-//                    }
-//                    else
-//                        ;
-//
-//                    line = new Array();
-//                }
-//            } while (words.length);
-//            this.firstChild.data = '';
-//        }
 
         // initialize every element
         this.each(function (index, element) {

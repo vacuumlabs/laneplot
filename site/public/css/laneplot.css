@@ -49,37 +49,67 @@
 
 .lanePlot > .eventContainer .svgWrapper {
     overflow-x: scroll;
-    -webkit-overflow-scrolling: touch;
+    /*-webkit-overflow-scrolling: touch;*/
     margin-left: 126px;
+    outline: none;
 }
 
-.lanes path {
+.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+/* graphics */
+.lanePlot .lanes path {
     fill: none;
     stroke: #7D7F7E;
     shape-rendering: crispEdges;
     stroke-dasharray: 2, 2;
 }
 
-.axis text {
+.lanePlot .axis text {
     font: 10px Arial;
     fill: #7D7F7E;
     font-weight: bold;
-    /*stroke: #000;*/
-    /*fill: #000;*/
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.axis line,
-.axis path {
+.lanePlot .axis line,
+.lanePlot .axis path {
     fill: none;
     stroke: #7D7F7E;
     shape-rendering: crispEdges;
 }
 
-.axis line {
+.lanePlot .axis line {
     stroke-dasharray: 2, 2;
 }
 
-.event {
+.lanePlot .event, .interval {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.lanePlot .interval text, .event text {
+    dominant-baseline: central;
+    alignment-baseline: middle;
+}
+
+.lanePlot .event {
     font-size: 12px;
     font-weight: bold;
+}
+
+.lanePlot svg {
+    -webkit-transform: translate(4px, 0);
+    -ms-transform: translate(4px, 0);
+    overflow: hidden;
 }

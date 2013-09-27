@@ -1,10 +1,9 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>LanePlot DEMO</title>
     <link rel="stylesheet" href="css/laneplot.css" type="text/css" media="screen"/>
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
@@ -20,6 +19,7 @@
             font-weight: bold;
         }
 
+            /* red intervals */
         rect.red.progress {
             fill: #DD3000;
         }
@@ -36,6 +36,7 @@
             font-size: 12px;
         }
 
+            /* green intervals */
         rect.green.progress {
             fill: #02A300;
         }
@@ -57,98 +58,10 @@
 <h1>LanePlot DEMO</h1>
 <script type="text/javascript">
     var testBoundaries = {
-        startDate: "2013/03/05",
-        endDate: "2013/11/01"
-    };
-    var testData = [
-        {
-            "id": "#hospitalizacia",
-            "description": "Hospitalizácia",
-            "icon": "icons/hosp.png",
-            "items": [
-                {
-                    "startDate": "2013/04/05",
-                    "endDate": "2013/6/05",
-                    "progressDate": "2013/05/20",
-                    "classes": ["red"],
-                    "label": "Robitussin"
-                },
-                {
-                    "startDate": "2013/07/12",
-                    "endDate": "2013/08/30",
-                    "progressDate": "2013/08/30",
-                    "classes": ["red"],
-                    "label": "Diazepam"
-                }
-            ]
-        },
-        {
-            "id": "#ine",
-            "description": "Iné vyšetrenia",
-            "items": [
-                {
-                    "startDate": "2013/03/30",
-                    "endDate": "2013/05/05",
-                    "progressDate": "2013/05/05",
-                    "classes": ["green"],
-                    "label": "Robitussin 2"
-                },
-                {
-                    "startDate": "2013/06/06",
-                    "endDate": "2013/06/20",
-                    "progressDate": "2013/06/16",
-                    "classes": ["green"],
-                    "label": "Diazepam 2"
-                }
-            ]
-        },
-        {
-            "id": "#liekyA",
-            "description": "Lieky (typ A)",
-            "items": [
-                {
-                    "startDate": "2013/05/06",
-                    "endDate": "2013/06/20",
-                    "progressDate": "2013/06/01",
-                    "classes": ["red"],
-                    "label": "Robitussin 3"
-                },
-                {
-                    "startDate": "2013/08/01",
-                    "endDate": "2013/10/10",
-                    "progressDate": "2013/10/10",
-                    "classes": ["green"],
-                    "label": "Diazepam 3"
-                }
-            ]
-        },
-        {
-            "id": "#liekyB",
-            "description": "Lieky (typ B)",
-            "items": [
-                {
-                    "startDate": "2013/04/01",
-                    "endDate": "2013/07/01",
-                    "progressDate": "2013/06/01",
-                    "classes": ["green"],
-                    "label": "Robitussin 4"
-                },
-                {
-                    "startDate": "2013/08/01",
-                    "endDate": "2013/09/01",
-                    "progressDate": "2013/08/20",
-                    "classes": ["green"],
-                    "label": "Diazepam 4"
-                }
-            ]
-        }
-    ];
-
-    var testBoundaries2 = {
         startDate: "2013/07/31",
         endDate: "2013/10/01"
     };
-    var testData2 = [
+    var testData = [
         {
             "id": "#hospitalizacia",
             "description": "<span class='greenLabel'>Hospitalizácia</span>",
@@ -222,7 +135,8 @@
                     "endDate": "2013/08/28",
                     "progressDate": "2013/08/28",
                     "classes": ["green"],
-                    "icon" : "icons/folder.png",
+                    "icon": "icons/folder.png",
+//                    "label": "TARKA 240 mg/2 mg tablety"
                     "label": "TARKA 240 mg/2 mg tablety"
                 }
             ]
@@ -242,19 +156,18 @@
         }
     ];
 
-
     // on ready
     $(function () {
         // create lanePlot
         $("#demo").lanePlot({
-            data: testData2,
+            data: testData,
             settings: {
-                boundaries: testBoundaries2,
+                boundaries: {},
                 viewport: {
                     width: 2629743830, // 1 month in miliseconds
                     position: null
                 },
-                laneHeight: 1.5
+                laneHeight: "20px"
             },
             onLaneClick: function (event, lane) {
                 alert('Klikol si na lane s ID: ' + lane.id);
@@ -265,5 +178,6 @@
 </script>
 
 <div id="demo"></div>
+
 </body>
 </html>
