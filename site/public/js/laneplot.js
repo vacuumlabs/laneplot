@@ -1,14 +1,112 @@
-/*!
- * jQuery LanePlot
- * Vacuumlabs @ 2013
- */
 (function ($, window, undefined) {
+    $.fn.lanePlot2 = function (options) {
 
-    $.fn.lanePlot = function (options) {
+        // initialize every element
+        var errorFn = function (code, str, param) {
+            var errorMsg = {};
+            [
+                { code: 'ERR_NO_DATA',
+                    message: 'V konfigurácii chýba objekt data'
+                },
+                { code: 'ERR_DATE_FMT',
+                    message: 'Nepodarilo sa spracovat datum'
+                },
+                { code: 'ERR_BAD_EVENT_TYPE',
+                    message: 'Lane item nezodpoveda specifikacii ziadneho typu eventu'
+                },
+                { code: 'ERR_BAD_RANGE',
+                    message: 'Nespravny rozsah datumov: %s'
+                },
+                { code: 'ERR_BAD_HEIGHT',
+                    message: 'Hodnota laneHeight musi byt vacsia ako 0'
+                }
+            ].forEach(function (error) {
+                    if (error.code == code) {
+                        errorMsg = jQuery.extend({}, error);
+                        return false;
+                    }
+                })
+
+//            if (str) {
+//                errorMsg.message.replace('%s', str);
+//            }
+            if (param !== undefined) {
+                errorMsg = jQuery.extend({}, {
+                    'paramObj': param
+                });
+            }
+            if (typeof config.onError === 'function') {
+                config.onError(errorMsg);
+            }
+        }
+
+        gradients = [];
+        var generateGradient = function (color) {
+            // check if exists
+            var id = ""
+            gradients.forEach(function (gradient) {
+                if (gradient.color0 == color[0] && gradient.color1 == color[1]) {
+                    id = gradient.id;
+                }
+            })
+
+            if (id != "") return id;
+
+            // create gradient
+            id = 'gradient' + gradients.length;
+            var svg = d3.select('svg');
+            var gradient = svg.append("svg:defs")
+                .append("svg:linearGradient")
+                .attr("id", id)
+                .attr("x1", "100%")
+                .attr("y1", "100%")
+                .attr("x2", "100%")
+                .attr("y2", "0%");
+            gradient.append("svg:stop")
+                .attr("offset", "0")
+                .attr("stop-color", color[0]);
+            gradient.append("svg:stop")
+                .attr("offset", "1")
+                .attr("stop-color", color[1]);
+
+            gradients.push({
+                color0: color[0],
+                color1: color[1],
+                id: "#" + id
+            });
+
+            return "#" + id;
+        }
+
+        function rounded_rect(x, y, w, h, r, full) {
+            var retval;
+            if (full) {
+                retval = "M " + (x + r) + "," + y;
+                retval += " h " + (w - 2 * r);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + r;
+                retval += " v " + (h - 2 * r);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + r;
+                retval += " h " + (2 * r - w);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + -r;
+                retval += " v " + (2 * r - h);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + -r;
+                retval += " z";
+            } else {
+                retval = "M " + (x + r) + "," + y;
+                retval += " h " + (w - 2 * r);
+                retval += " l " + (r) + "," + (h / 2);
+                retval += " l " + (-r) + "," + (h / 2);
+                retval += " h " + (2 * r - w);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + -r;
+                retval += " v " + (2 * r - h);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + -r;
+                retval += " z";
+            }
+            return retval;
+        }
 
         // default configuration
         var config = $.extend({}, {
-                data: [],
                 settings: {
                     boundaries: {
                         startDate: null,
@@ -20,7 +118,8 @@
                     },
                     laneHeight: 2
                 },
-                onLaneClick: null
+                onLaneClick: null,
+                onError: null
             }, options),
             labelContainer = null,
             eventContainer = null,
@@ -28,12 +127,19 @@
 
         // init function
         function init(element) {
+            if (config.data == undefined) {
+                errorFn('ERR_NO_DATA');
+            }
+            if (parseInt(config.settings.laneHeight) <= 0) {
+                errorFn('ERR_BAD_HEIGHT');
+            }
+
             // containers/structure
             labelContainer = $('<div/>', {
-                'class': 'labelContainer'
+                'class': 'leftCol'
             });
             eventContainer = $('<div/>', {
-                'class': 'eventContainer'
+                'class': 'rightCol'
             });
             svgWrapper = $('<div/>', {
                 'class': 'svgWrapper'
@@ -44,10 +150,11 @@
                 .append(eventContainer)
                 .append(labelContainer)
                 .append('<div class="clearfix"></div>');
-            $(element).css('height', config.data.length * config.laneHeight);
+            $(element).css('height', parseInt(config.data.length) * parseInt(config.settings.laneHeight));
 
             // data init
             processData();
+
 
             // lane init
             config.data.forEach(function (lane) {
@@ -56,7 +163,7 @@
 
             // graphics init
             var g = graphics(
-                labelContainer.children('.label').outerHeight(),
+                parseInt(labelContainer.children('.lane-label').outerHeight()),
                 config.data.length,
                 $(svgWrapper).width(),
                 config.settings.viewport.width
@@ -73,7 +180,7 @@
                     var parentOffset = $(this).offset(),
                         relY = e.pageY - parentOffset.top,
                         laneNumber = Math.floor(relY / labelContainer.children('.label').outerHeight());
-                    config.onLaneClick(e, config.data[laneNumber]);
+                    config.onLaneClick(config.data[laneNumber]);
                 })
             }
         }
@@ -137,7 +244,7 @@
         // create lane label
         function createLabel(lane) {
             var label = $('<div/>', {
-                'class': 'label',
+                'class': 'lane-label',
                 'style': 'height:' + config.settings.laneHeight + ';' +
                     'line-height:' + config.settings.laneHeight + ';'
             });
@@ -191,7 +298,9 @@
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient("bottom")
-                .tickSize(-svgHeight);
+                .tickSize(-svgHeight)
+                .ticks(d3.time.days)
+                .tickFormat(d3.time.format("%d"));
 
             svg.append("g")
                 .attr("class", "x axis")
@@ -204,7 +313,7 @@
 
             // render lanes
             var lanesGroup = svg.append("g")
-                .attr("class", "lanes");
+                .attr("class", "yaxis");
             for (var i = 0; i < laneCount; i++) {
                 lanesGroup.append("svg:path")
                     .attr("d", "M 0 " + (i * laneHeight) + " L " + svgWidth + " " + i * (laneHeight));
@@ -298,14 +407,21 @@
                             .attr("height", rectHeight)
                             .attr("rx", 5)
                             .attr("class", rectClasses);
+                        if (typeof item.backgroundColor === "string" && item.backgroundColor != "") {
+                            rect.attr('style', 'fill:' + item.backgroundColor);
+                        } else if (item.backgroundColor instanceof Array) {
+                            rect.attr('style', 'fill:url(' + generateGradient(item.backgroundColor) + ')');
+                        }
                         // progress
-                        var progress = intervalGroup.append("rect")
-                            .attr("x", rectX)
-                            .attr("y", rectY)
-                            .attr("width", rectProgressWidth)
-                            .attr("height", rectHeight)
-                            .attr("rx", 5)
+                        var full = (item.progressDate - item.endDate == 0) ? true : false;
+                        var progress = intervalGroup.append("path")
+                            .attr("d", rounded_rect(rectX, rectY, rectProgressWidth, rectHeight, 5, full))
                             .attr("class", rectClasses + " progress");
+                        if (typeof item.progressColor === "string" && item.progressColor != "") {
+                            progress.attr('style', 'fill:' + item.progressColor);
+                        } else if (item.progressColor instanceof Array) {
+                            progress.attr('style', 'fill:url(' + generateGradient(item.progressColor) + ')');
+                        }
                         //icon
                         if (item.icon && item.icon != "") {
                             var img = intervalGroup.append("image")
@@ -333,7 +449,7 @@
                         var browser = navigator.appName;
                         if (browser == "Microsoft Internet Explorer") {
                             var txtHeight = txt.node().getBBox().height;
-                            txt.attr("dy", "1.3em" );
+                            txt.attr("dy", "1.3em");
                         }
 
                         // text overflow
@@ -365,7 +481,8 @@
                 });
 
                 // recreate x axis
-                d3.select(".x.axis").remove();
+                var axisGroup = d3.select(".x.axis");
+                axisGroup.selectAll().remove();
                 var t1 = config.settings.boundaries.startDate,
                     t2 = config.settings.boundaries.endDate;
                 var x = d3.time.scale()
@@ -376,11 +493,11 @@
                 var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
-                    .tickSize(-graphics.svgHeight);
+                    .tickSize(-graphics.svgHeight)
+                    .ticks(d3.time.days)
+                    .tickFormat(d3.time.format("%d"));
 
-                svg.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", "translate(0, " + (graphics.svgHeight - 20) + ")")
+                axisGroup
                     .call(xAxis)
                     .selectAll("text")
                     .attr("y", 6)
@@ -391,6 +508,19 @@
                 d3.selectAll(".interval rect, .event rect").each(function () {
                     d3.select(this).attr('x', linearScale(d3.select(this).attr('x')));
                     d3.select(this).attr('width', linearScale(d3.select(this).attr('width')));
+                });
+                // resize/reposition rectangles
+                d3.selectAll(".interval path").each(function () {
+//                    d3.select(this).attr('x', linearScale(d3.select(this).attr('x')));
+//                    d3.select(this).attr('width', linearScale(d3.select(this).attr('width')));
+                    var test = d3.select(this).attr('d').split(" ");
+//                    console.log(test);
+                    var subtest = test[1].split(",");
+                    subtest[0] = linearScale(parseInt(subtest[0]));
+                    test[1] = subtest.join(",");
+
+                    d3.select(this).attr('d', test.join(" "));
+//                    console.log(d3.select(this).attr('d').split(" "));
                 });
                 // resize/reposition texts and icons
                 d3.selectAll(".interval text, .interval image, .event text, .event image").each(function () {
@@ -441,7 +571,7 @@
                 //one word
                 if (line.length < 1) {
                     while (textWidth > rectWidth && word.length > 2) {
-                        word = word.substring(0,word.length-1);
+                        word = word.substring(0, word.length - 1);
                         svgText.text(word + '...');
                         textWidth = svgText.node().getComputedTextLength();
                         textWidth += (svgText.attr('x') - svgRect.attr('x'));

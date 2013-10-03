@@ -1,34 +1,61 @@
 /* lanePlot */
 .lanePlot {
-    font-size: 1em;
+    font-size: 13px;
     margin: 0;
     padding: 0;
     color: #000;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .clearfix {
     clear: both;
 }
 
+.eventText {
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 11;
+}
+
+.intervalText {
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 10;
+}
+
+.eventText .intervalIcon, .intervalText .intervalIcon {
+    float:left;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+}
+
 /* labelContainer */
-.lanePlot > .labelContainer {
+.lanePlot > .leftCol {
     float: left;
     width: 126px;
     margin-left: -100%;
-    border-right: 1px solid #E9E9FB;
 }
 
-.lanePlot > .labelContainer div.label {
-    padding: 5px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+.lanePlot > .leftCol div.lane-label {
+    padding: 0 5px;
     font-size: 13px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     position: relative;
+    border-left: 1px solid #E5E5E5;
+    display: block;
 }
 
-.lanePlot > .labelContainer img.icon {
+.lanePlot > .leftCol div.lane-label:last-child {
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.lanePlot > .leftCol img.icon {
     position: absolute;
     top: 0;
     left: 0;
@@ -37,60 +64,62 @@
     padding-bottom: 2px;
 }
 
-.lanePlot > .labelContainer div:nth-child(odd) {
-    background: #F2F2FF;
+.lanePlot > .leftCol div:nth-child(odd) {
+    background: #EEEEEE;
 }
 
 /* eventContainer */
-.lanePlot > .eventContainer {
+.lanePlot > .rightCol {
     float: left;
     width: 100%;
 }
 
-.lanePlot > .eventContainer .svgWrapper {
+.lanePlot > .rightCol .svgWrapper {
     overflow-x: scroll;
-    /*-webkit-overflow-scrolling: touch;*/
+    overflow-y: hidden;
+    border: 1px solid #E5E5E5;
     margin-left: 126px;
     outline: none;
+    position: relative;
 }
 
-.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar {
+.lanePlot > .rightCol .svgWrapper::-webkit-scrollbar {
     -webkit-appearance: none;
 }
 
-.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar:horizontal {
+.lanePlot > .rightCol .svgWrapper::-webkit-scrollbar:horizontal {
     height: 11px;
 }
 
-.lanePlot > .eventContainer .svgWrapper::-webkit-scrollbar-thumb {
+.lanePlot > .rightCol .svgWrapper::-webkit-scrollbar-thumb {
     border-radius: 8px;
     border: 2px solid white;
     background-color: rgba(0, 0, 0, .5);
 }
 
 /* graphics */
-.lanePlot .lanes path {
+.lanePlot .yaxis path {
     fill: none;
     stroke: #7D7F7E;
     shape-rendering: crispEdges;
     stroke-dasharray: 2, 2;
 }
 
-.lanePlot .axis text {
+.lanePlot .xaxis text {
     font: 10px Arial;
     fill: #7D7F7E;
     font-weight: bold;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.lanePlot .axis line,
-.lanePlot .axis path {
+.lanePlot .xaxis line,
+.lanePlot .xaxis path {
     fill: none;
     stroke: #7D7F7E;
     shape-rendering: crispEdges;
 }
 
-.lanePlot .axis line {
+.lanePlot .xaxis line {
     stroke-dasharray: 2, 2;
 }
 

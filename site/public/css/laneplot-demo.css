@@ -1,0 +1,32 @@
+
+.greenLabel {
+    color: #2F7A28;
+    font-weight: bold;
+}
+
+/* red intervals */
+rect.red.progress {
+    fill: #DD3000;
+}
+
+rect.red {
+    fill: #686868;
+    stroke: #7D7F7E;
+    stroke-width: 2;
+}
+
+/* green intervals */
+rect.green.progress {
+    fill: #02A300;
+}
+
+rect.green {
+    fill: #686868;
+    stroke: #7D7F7E;
+    stroke-width: 2;
+}
+
+.intervalText {
+    color: white;
+    font-weight: bold;
+}
