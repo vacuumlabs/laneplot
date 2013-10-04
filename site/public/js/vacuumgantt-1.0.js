@@ -30,7 +30,10 @@
             scale: null,
             rectMargin: 5,
             xAxisHeight: 20,
-            gradients: []
+            eventOverflow: 0,
+            gradients: [],
+            position: 0,
+            padding: 5
         };
         this.viewport = {
             width: 0,
@@ -62,8 +65,9 @@
 
             self.svg.width = self.svg.scale(Math.abs(maxValue - minValue));
             self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + self.svg.xAxisHeight;
-            self.svg.elem.attr('width', self.svg.width);
+            self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow + self.svg.padding);
             self.svg.elem.attr('height', self.svg.height);
+            self.svg.elem.attr('transform', 'translate(4,0)');
         }
         this.generateGradient = function (color) {
             // check if exists
@@ -269,6 +273,16 @@
                 });
             });
 
+            // init to position
+            if (settings.viewport.position > 0) {
+                if (settings.viewport.position < settings.boundaries.startDate) {
+                    self.graphics.svg.wrapper.scrollLeft(self.graphics.svg.scale(0))
+                } else {
+                    var pos = Math.abs(settings.boundaries.startDate - settings.viewport.position);
+                    self.graphics.svg.wrapper.scrollLeft(self.graphics.svg.scale(pos))
+                }
+            }
+
             // grid resolution
             var xAxisTicks = 5;
             if (!isNaN(settings.grid.resolution)) {
@@ -402,6 +416,7 @@
             var self = this;
             self.graphics = graphics;
             self.laneIndex = laneIndex;
+            self.boundaries = plot.options.settings.boundaries;
 
             // extend data
             self.data = $.extend({}, $.fn.vacuumGantt.intervalOptions, data);
@@ -483,7 +498,10 @@
             var self = this;
 
             // init dimensions
-            var rectX = Math.abs(self.startDate - self.graphics.svg.minValue),
+            if (self.startDate < self.boundaries.startDate) {
+                self.startDate = self.boundaries.startDate;
+            }
+            var rectX = Math.abs(self.startDate - self.boundaries.startDate),
                 rectY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex + self.graphics.svg.rectMargin,
                 progressWidth = Math.abs(self.progressDate - self.startDate),
                 unfinishedWidth = Math.abs(self.endDate - self.startDate),
@@ -503,7 +521,6 @@
             rectX = self.graphics.svg.scale(rectX);
             progressWidth = self.graphics.svg.scale(progressWidth);
             unfinishedWidth = self.graphics.svg.scale(unfinishedWidth);
-
 
             unfinishedRect
                 .attr('x', rectX)
@@ -530,16 +547,10 @@
             });
             //bring to front text
             self.intervalText.bind('mouseover touchStart', function () {
-//                $(this).siblings('.eventText, .intervalText').animate({
-//                    opacity: 0.25
-//                }, 300);
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
             })
             self.intervalText.bind('mouseout', function () {
-//                $(this).siblings('.eventText, .intervalText').animate({
-//                    opacity: 1
-//                }, 100);
                 $(this).removeClass('toFront');
             })
         }
@@ -604,7 +615,7 @@
 
             // update text div
             self.eventText
-                .css('left', textX.toFixed(2) + 'px')
+                .css('left', (parseInt(textX.toFixed(2)) + 4.0) + 'px')
                 .css('top', textY.toFixed(2) + 'px')
                 .css('height', textHeight)
                 .css('line-height', textHeight + 'px');
@@ -615,18 +626,24 @@
                 self.eventText.css('padding-left', icon.width() + 5);
             });
 
+            // last event overflow fix
+            self.eventText.load(function () {
+                // resize svg
+                if (textX.toFixed(2) + parseInt($(this).width) > self.svg.width) {
+                    self.svg.eventOverflow = Math.abs(textX.toFixed(2) + parseInt($(this).width) - self.svg.width);
+                    self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow);
+                }
+                // resize grid
+//                var xAxisGroup = self.graphics.svg.elem.select('g.yaxis');
+//                xAxisGroup.attr('transform', 'scale(2,0)');
+            })
+
             //bring to front
             self.eventText.bind('mouseover touchStart', function () {
-//                $(this).siblings('.eventText, .intervalText').animate({
-//                    opacity: 0.25
-//                }, 300);
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
             })
             self.eventText.bind('mouseout', function () {
-//                $(this).siblings('.eventText, .intervalText').animate({
-//                    opacity: 1
-//                }, 100);
                 $(this).removeClass('toFront');
             })
         }
@@ -658,7 +675,7 @@
             },
             viewport: {
                 width: 2629743830, // month
-                position: null
+                position: 0
             },
             laneHeight: '20px',
             grid: {
