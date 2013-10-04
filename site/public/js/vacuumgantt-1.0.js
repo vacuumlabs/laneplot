@@ -47,6 +47,11 @@
         };
         this.errorCallback = null;
         this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds, errorCallback) {
+            if (parseInt(laneHeight) <= 0) {
+                this.errorMsg(
+                    'ERR_BAD_HEIGHT',
+                    laneHeight);
+            }
             self.svg.elem = svgElem;
             self.svg.wrapper = wrapperElem;
             self.labels.elem = labelsElem;
@@ -154,6 +159,9 @@
                 },
                 { code: 'ERR_BAD_HEIGHT',
                     message: 'Hodnota laneHeight musi byt vacsia ako 0'
+                },
+                { code: 'ERR_NO_PLUGIN',
+                    message: 'Nepodarilo sa nacitat potrebne pluginy'
                 }
             ].forEach(function (error) {
                     if (error.code == code) {
@@ -175,6 +183,33 @@
 
             // extend by default configuration
             self.options = $.extend({}, $.fn.vacuumGantt.options, options);
+
+            // check if momentjs and d3 exists
+            if (typeof moment === "undefined") {
+                if (typeof self.options.onError == "function") {
+                    self.options.onError(
+                        'ERR_NO_PLUGIN',
+                        {
+                            name: "momentjs"
+                        });
+                }
+            }
+            if (typeof d3 === "undefined") {
+                if (typeof self.options.onError == "function") {
+                    self.options.onError(
+                        'ERR_NO_PLUGIN',
+                        {
+                            name: "d3js"
+                        });
+                }
+            }
+
+            // if no data
+            if (!(self.options.data instanceof Array)) {
+                self.graphics.errorMsg(
+                    'ERR_NO_DATA',
+                    self.options.data);
+            }
 
             // create DOM structure
             var leftCol = $('<div/>', {
@@ -241,13 +276,31 @@
             var settings = self.options.settings;
             if (typeof settings.boundaries.startDate === "string" && settings.boundaries.startDate != '') {
                 settings.boundaries.startDate = new Date(settings.boundaries.startDate);
+                // error after parsing
+                if (!(settings.boundaries.startDate) instanceof Date) {
+                    self.graphics.errorMsg(
+                        'ERR_DATE_FMT',
+                        settings.boundaries.startDate);
+                }
             }
             if (typeof settings.boundaries.endDate === "string" && settings.boundaries.endDate != '') {
                 settings.boundaries.endDate = new Date(settings.boundaries.endDate);
+                // error after parsing
+                if (!(settings.boundaries.endDate) instanceof Date) {
+                    self.graphics.errorMsg(
+                        'ERR_DATE_FMT',
+                        settings.boundaries.endDate);
+                }
             }
             // init viewport start position
             if (typeof settings.viewport.position === "string" && settings.viewport.position != '') {
                 settings.viewport.position = new Date(settings.viewport.position);
+                // error after parsing
+                if (!(settings.viewport.position) instanceof Date) {
+                    self.graphics.errorMsg(
+                        'ERR_DATE_FMT',
+                        settings.viewport.position);
+                }
             }
 
             // start/end date of boundaries not set => init by minDate, maxDate
@@ -256,6 +309,14 @@
             }
             if (!(settings.boundaries.endDate instanceof Date)) {
                 settings.boundaries.endDate = self.maxDate;
+            }
+
+            // error on wrong boundaries
+            if (settings.boundaries.startDate > settings.boundaries.endDate) {
+                self.graphics.errorMsg(
+                    'ERR_BAD_RANGE',
+                    settings.boundaries);
+
             }
         },
         resize: function () {
@@ -421,6 +482,14 @@
             // extend data
             self.data = $.extend({}, $.fn.vacuumGantt.intervalOptions, data);
 
+            // error on input data
+            if (typeof self.data.startDate == "undefined"
+                || typeof self.data.endDate == "undefined") {
+                self.graphics.errorMsg(
+                    'ERR_BAD_EVENT_TYPE',
+                    data);
+            }
+
             // parse date
             if (typeof self.data.startDate === "string" && self.data.startDate != "") {
                 self.startDate = new Date(self.data.startDate);
@@ -437,6 +506,26 @@
                     self.progressDate = null;
                 }
             }
+
+            // error handling
+            if (!(self.startDate instanceof Date)) {
+                self.graphics.errorMsg(
+                    'ERR_DATE_FMT',
+                    self.data.startDate);
+            }
+
+            if (!(self.endDate instanceof Date)) {
+                self.graphics.errorMsg(
+                    'ERR_DATE_FMT',
+                    self.data.endDate);
+            }
+
+            if (self.data.progressDate && !(self.startDate instanceof Date)) {
+                self.graphics.errorMsg(
+                    'ERR_DATE_FMT',
+                    self.data.progressDate);
+            }
+
             self.minMaxDate(plot, self.startDate, self.endDate);
         },
         render: function () {
@@ -567,9 +656,22 @@
             // extend data
             self.data = $.extend({}, $.fn.vacuumGantt.eventOptions, data);
 
+            // error on input data
+            if (typeof self.data.date == "undefined") {
+                self.graphics.errorMsg(
+                    'ERR_BAD_EVENT_TYPE',
+                    data);
+            }
+
             // parse date
             if (typeof data.date === "string" && data.date != "") {
                 self.date = new Date(data.date);
+            }
+
+            if (!(self.date instanceof Date)) {
+                self.graphics.errorMsg(
+                    'ERR_DATE_FMT',
+                    self.data.date);
             }
             self.minMaxDate(plot, self.date);
         },
@@ -667,7 +769,6 @@
 
     // default VacuumGantt configuration
     $.fn.vacuumGantt.options = {
-        data: [],
         settings: {
             boundaries: {
                 startDate: null,
@@ -697,9 +798,6 @@
 
     // default Interval configuration
     $.fn.vacuumGantt.intervalOptions = {
-        startDate: null,
-        endDate: null,
-        progressDate: null,
         icon: "",
         classes: [],
         label: ""
@@ -707,7 +805,6 @@
 
     // default Event configuration
     $.fn.vacuumGantt.eventOptions = {
-        date: null,
         icon: "",
         classes: [],
         label: ""
