@@ -49,8 +49,8 @@ var testData = [
                 "endDate": "2013/10/01",
                 "progressDate": "2013/09/24",
                 "classes": ["red"],
-                "progressColor": "#FF2E00",
-                "backgroundColor": ["#4C4C4C","#7D7D7D"],
+                "progressColor": ["#BF2101", "#FF2E00"],
+                "unfinishedColor": ["#4C4C4C","#7D7D7D"],
                 "label": "LOMAC, cps 14x20 mg"
             }
         ]
@@ -65,8 +65,8 @@ var testData = [
                 "endDate": "2013/10/01",
                 "progressDate": "2013/09/24",
                 "classes": ["red"],
-                "progressColor": "#FF2E00",
-                "backgroundColor": ["#4C4C4C","#7D7D7D"],
+                "progressColor": ["#BF2101", "#FF2E00"],
+                "unfinishedColor": ["#4C4C4C","#7D7D7D"],
                 "label": "LOMAC, cps 14x20 mg"
             }
         ]
@@ -82,7 +82,6 @@ var testData = [
                 "classes": ["green"],
                 "progressColor": ['#0A7610','#00AF06'],
                 "icon": "icons/folder.png",
-//                    "label": "TARKA 240 mg/2 mg tablety"
                 "label": "TARKA 240 mg/2 mg tablety"
             }
         ]

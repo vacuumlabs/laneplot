@@ -1,5 +1,5 @@
 /*!
- * jQuery lanePlot
+ * jQuery VacuumGantt
  * Version: 1.0
  * Vacuumlabs @ 2013
  */
@@ -27,7 +27,8 @@
             maxValue: 0,
             scale: null,
             rectMargin: 5,
-            xAxisHeight: 20
+            xAxisHeight: 20,
+            gradients: []
         },
         viewport: {
             width: 0,
@@ -62,18 +63,84 @@
             self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + self.svg.xAxisHeight;
             self.svg.elem.attr('width', self.svg.width);
             self.svg.elem.attr('height', self.svg.height);
+        },
+        generateGradient: function (color) {
+            var self = this;
+
+            // check if exists
+            var gradientId = ""
+            self.svg.gradients.forEach(function (gradient) {
+                if (gradient.color0 == color[0] && gradient.color1 == color[1]) {
+                    gradientId = gradient.id;
+                }
+            })
+
+            if (gradientId != "") {
+                return gradientId;
+            }
+
+            // create gradient
+            gradientId = 'gradient' + self.svg.gradients.length;
+            var svg = self.svg.elem;
+            var gradient = svg.append("svg:defs")
+                .append("svg:linearGradient")
+                .attr("id", gradientId)
+                .attr("x1", "100%")
+                .attr("y1", "100%")
+                .attr("x2", "100%")
+                .attr("y2", "0%");
+            gradient.append("svg:stop")
+                .attr("offset", "0")
+                .attr("stop-color", color[0]);
+            gradient.append("svg:stop")
+                .attr("offset", "1")
+                .attr("stop-color", color[1]);
+
+            self.svg.gradients.push({
+                color0: color[0],
+                color1: color[1],
+                id: "#" + gradientId
+            });
+
+            return "#" + gradientId;
+        },
+        progressPolygon: function rounded_rect(x, y, w, h, r, full) {
+            var retval;
+            if (full) {
+                retval = "M " + (x + r) + "," + y;
+                retval += " h " + (w - 2 * r);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + r;
+                retval += " v " + (h - 2 * r);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + r;
+                retval += " h " + (2 * r - w);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + -r;
+                retval += " v " + (2 * r - h);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + -r;
+                retval += " z";
+            } else {
+                retval = "M " + (x + r) + "," + y;
+                retval += " h " + (w - 2 * r);
+                retval += " l " + (r) + "," + (h / 2);
+                retval += " l " + (-r) + "," + (h / 2);
+                retval += " h " + (2 * r - w);
+                retval += " a " + r + "," + r + " 0 0 1 " + -r + "," + -r;
+                retval += " v " + (2 * r - h);
+                retval += " a " + r + "," + r + " 0 0 1 " + r + "," + -r;
+                retval += " z";
+            }
+            return retval;
         }
     }
 
-    // LanePlot object concept
-    var LanePlotObj = {
+    // VacuumGantt object concept
+    var VacuumGanttObj = {
         init: function (options, elem) {
             var self = this;
             self.elem = $(elem);
             self.graphics = Object.create(Graphics);
 
             // extend by default configuration
-            self.options = $.extend({}, $.fn.lanePlot.options, options);
+            self.options = $.extend({}, $.fn.vacuumGantt.options, options);
 
             // create DOM structure
             var leftCol = $('<div/>', {
@@ -87,7 +154,7 @@
                     'html': svgWrapper
                 });
             self.elem
-                .addClass('lanePlot')
+                .addClass('vacuumGantt')
                 .append(rightCol)
                 .append(leftCol)
                 .append('<div class="clearfix"></div>');
@@ -170,8 +237,14 @@
                 });
             });
 
+            // grid resolution
+            var xAxisTicks = 5;
+            if (!isNaN(settings.grid.resolution)) {
+                xAxisTicks = Math.abs(settings.boundaries.startDate.getTime() - settings.boundaries.endDate.getTime());
+                xAxisTicks = Math.floor(xAxisTicks / settings.grid.resolution);
+            }
             // resize x Axis
-            var axisGroup = self.graphics.svg.elem.select(".xaxis"),
+            var xAxisGroup = self.graphics.svg.elem.select(".xaxis"),
                 xAxisDomain = [settings.boundaries.startDate, settings.boundaries.endDate],
                 xAxisScale = d3.time.scale()
                     .domain(xAxisDomain)
@@ -182,16 +255,26 @@
                     .scale(xAxisScale)
                     .orient("bottom")
                     .tickSize(-(self.graphics.svg.height))
-                    .ticks(d3.time.days)
-                    .tickFormat(d3.time.format("%d"));
+                    .ticks(xAxisTicks)
+                    .tickFormat(function (d) {
+                        return moment(d).format(settings.grid.dateFormat);
+                    });
 
-            axisGroup.selectAll().remove();
-            axisGroup.attr("transform", "translate(0, " + (self.graphics.svg.height - self.graphics.svg.xAxisHeight) + ")")
+            // regenerate
+            xAxisGroup.selectAll().remove();
+            xAxisGroup.attr("transform", "translate(0, " + (self.graphics.svg.height - self.graphics.svg.xAxisHeight) + ")")
                 .call(xAxis)
                 .selectAll("text")
                 .attr("y", 6)
                 .attr("x", 6)
                 .style("text-anchor", "start");
+
+            // change x and y axis color
+            if (typeof settings.grid.color === "string" && typeof settings.grid.color != "") {
+                xAxisGroup.selectAll('text').style('fill', settings.grid.color);
+                xAxisGroup.selectAll('line, path').style('stroke', settings.grid.color);
+                self.graphics.svg.elem.selectAll(".yaxis path").style('stroke', settings.grid.color);
+            }
         }
     }
 
@@ -203,27 +286,27 @@
             self.index = index;
 
             // extend data
-            self.data = $.extend({}, $.fn.lanePlot.laneOptions, data);
+            self.data = $.extend({}, $.fn.vacuumGantt.laneOptions, data);
 
             // create DOM structure
             self.elem = $('<div/>', {
                 'class': 'lane-label',
-                'style': 'line-height:' + self.graphics.labels.laneHeight
+                'style': 'line-height:' + self.graphics.labels.laneHeight + ';'
+                    + 'height:' + self.graphics.labels.laneHeight
             });
 
             if (typeof self.data.icon === "string" && self.data.icon != "") {
                 var icon = $('<img/>', {
-                    'class': 'icon',
-                    'style': 'max-height:' + self.graphics.labels.laneHeight,
+                    'class': 'lane-icon',
+                    'style': 'max-height:' + self.graphics.labels.laneHeight + ';',
                     'src': self.data.icon,
                     'alt': 'lane-icon'
                 });
-                self.elem.append(icon);
                 // icon vertical center fix
                 icon.load(function () {
-                    icon.css('left', parseInt(self.elem.css('padding-left')));
                     self.elem.css('padding-left', parseInt(self.elem.css('padding-left')) + icon.width() + 2);
                 });
+                self.elem.append(icon);
             }
             self.elem.append(self.data.description);
 
@@ -289,7 +372,7 @@
             self.laneIndex = laneIndex;
 
             // extend data
-            self.data = $.extend({}, $.fn.lanePlot.intervalOptions, data);
+            self.data = $.extend({}, $.fn.vacuumGantt.intervalOptions, data);
 
             // parse date
             if (typeof self.data.startDate === "string" && self.data.startDate != "") {
@@ -317,20 +400,31 @@
                 .attr('class', 'interval');
 
             var classes = self.data.classes.join(" ");
-            // main rect
-            self.intervalGroup.append("svg:rect")
+            // unfinished rect
+            var unfinished = self.intervalGroup.append("svg:rect")
                 .attr("rx", 5)
                 .attr("class", classes + " unfinished");
+            // unfinished gradient
+            if (typeof self.data.unfinishedColor === "string" && self.data.unfinishedColor != "") {
+                unfinished.attr('style', 'fill:' + self.data.unfinishedColor);
+            } else if (self.data.unfinishedColor instanceof Array) {
+                unfinished.attr('style', 'fill:url(' + self.graphics.generateGradient(self.data.unfinishedColor) + ')');
+            }
 
             // progress rect
-            self.intervalGroup.append("svg:rect")
-                .attr("rx", 5)
+            var progress = self.intervalGroup.append("path")
                 .attr("class", classes + " progress");
+            // progress gradient
+            if (typeof self.data.progressColor === "string" && self.data.progressColor != "") {
+                progress.attr('style', 'fill:' + self.data.progressColor);
+            } else if (self.data.progressColor instanceof Array) {
+                progress.attr('style', 'fill:url(' + self.graphics.generateGradient(self.data.progressColor) + ')');
+            }
 
             // text
             self.intervalText = $('<div/>', {
-                'class': 'intervalText',
-                'html': '<span>' + self.data.label + '</span>'
+                'class': 'intervalText ' + classes,
+                'html': self.data.label
             });
 
             //icon
@@ -359,10 +453,10 @@
             // init dimensions
             var rectX = Math.abs(self.startDate - self.graphics.svg.minValue),
                 rectY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex + self.graphics.svg.rectMargin,
-                progressWidth = Math.abs(self.endDate - self.startDate),
-                unfinishedWidth = Math.abs(self.progressDate - self.startDate),
+                progressWidth = Math.abs(self.progressDate - self.startDate),
+                unfinishedWidth = Math.abs(self.endDate - self.startDate),
                 rectHeight = parseInt(self.graphics.labels.laneHeight) - 2 * self.graphics.svg.rectMargin,
-                progressRect = self.intervalGroup.select("rect.progress"),
+                progressRect = self.intervalGroup.select("path.progress"),
                 unfinishedRect = self.intervalGroup.select("rect.unfinished");
 
             // scale dimensions
@@ -373,14 +467,12 @@
             unfinishedRect
                 .attr('x', rectX)
                 .attr('y', rectY)
-                .attr('width', progressWidth)
-                .attr('height', rectHeight);
-
-            progressRect
-                .attr('x', rectX)
-                .attr('y', rectY)
                 .attr('width', unfinishedWidth)
                 .attr('height', rectHeight);
+
+            var fullProgress = Math.abs(self.progressDate - self.endDate) == 0 ? true : false;
+            progressRect
+                .attr("d", self.graphics.progressPolygon(rectX, rectY, progressWidth, rectHeight, 5, fullProgress));
 
             // update text div
             self.intervalText
@@ -389,13 +481,26 @@
                 .css('width', (unfinishedWidth - 2 * self.graphics.svg.rectMargin).toFixed(2))
                 .css('height', rectHeight.toFixed(2))
                 .css('line-height', rectHeight.toFixed(2) + "px");
-            var icon = self.intervalText.children('.intervalIcon')
-                .css('max-height', rectHeight.toFixed(2) - 5)
-                .css('margin-right', 5);
+            var icon = self.intervalText.find('.intervalIcon')
+                .css('max-height', rectHeight.toFixed(2) - 5);
             // icon vertical center fix
             icon.load(function () {
-                self.intervalText.children('span').css('padding-left', icon.width() + 5);
+                self.intervalText.css('padding-left', icon.width() + 5);
             });
+            //bring to front text
+            self.intervalText.bind('mouseover touchStart', function(){
+//                $(this).siblings('.eventText, .intervalText').animate({
+//                    opacity: 0.25
+//                }, 300);
+                $(this).siblings('.toFront').removeClass('toFront');
+                $(this).addClass('toFront');
+            })
+            self.intervalText.bind('mouseout', function(){
+//                $(this).siblings('.eventText, .intervalText').animate({
+//                    opacity: 1
+//                }, 100);
+                $(this).removeClass('toFront');
+            })
         }
     }
 
@@ -408,7 +513,7 @@
             self.laneIndex = laneIndex;
 
             // extend data
-            self.data = $.extend({}, $.fn.lanePlot.eventOptions, data);
+            self.data = $.extend({}, $.fn.vacuumGantt.eventOptions, data);
 
             // parse date
             if (typeof data.date === "string" && data.date != "") {
@@ -420,18 +525,19 @@
             var self = this;
 
             // text
+            var classes = self.data.classes.join(" ");
             self.eventText = $('<div/>', {
-                'class': 'eventText',
-                'html': '<span>' + self.data.label + '</span>'
+                'class': 'eventText ' + classes,
+                'html': self.data.label
             });
 
             //icon
             if (typeof self.data.icon === "string" && self.data.icon != "") {
-                var intervalIcon = $('<img />', {
+                var eventIcon = $('<img />', {
                     src: self.data.icon,
-                    class: 'intervalIcon'
+                    class: 'eventIcon'
                 });
-                self.eventText.prepend(intervalIcon);
+                self.eventText.prepend(eventIcon);
             }
 
             self.graphics.svg.wrapper.append(self.eventText);
@@ -449,8 +555,8 @@
 
             // init dimensions
             var textX = Math.abs(self.date - self.graphics.svg.minValue),
-                textY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex,
-                textHeight = parseInt(self.graphics.labels.laneHeight);
+                textY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex  + self.graphics.svg.rectMargin - 1,
+                textHeight = parseInt(self.graphics.labels.laneHeight) - 2 * self.graphics.svg.rectMargin + 1;
 
             // scale dimensions
             textX = self.graphics.svg.scale(textX);
@@ -460,35 +566,49 @@
                 .css('left', textX.toFixed(2) + 'px')
                 .css('top', textY.toFixed(2) + 'px')
                 .css('height', textHeight)
-                .css('line-height', self.graphics.labels.laneHeight);
-            var icon = self.eventText.children('.intervalIcon')
-                .css('max-height', textHeight - 5)
-                .css('margin-right', 5);
+                .css('line-height', textHeight + 'px');
+            var icon = self.eventText.children('.eventIcon')
+                .css('max-height', textHeight);
             // icon vertical center fix
             icon.load(function () {
-                self.eventText.children('span').css('padding-left', icon.width() + 2);
+                self.eventText.css('padding-left', icon.width() + 5);
             });
+
+            //bring to front
+            self.eventText.bind('mouseover touchStart', function(){
+//                $(this).siblings('.eventText, .intervalText').animate({
+//                    opacity: 0.25
+//                }, 300);
+                $(this).siblings('.toFront').removeClass('toFront');
+                $(this).addClass('toFront');
+            })
+            self.eventText.bind('mouseout', function(){
+//                $(this).siblings('.eventText, .intervalText').animate({
+//                    opacity: 1
+//                }, 100);
+                $(this).removeClass('toFront');
+            })
         }
     }
 
     // plot initialization
-    $.fn.lanePlot = function (options) {
+    $.fn.vacuumGantt = function (options) {
         // initialize every element
         this.each(function (index, element) {
-            // init lanePlot
-            var lanePlot = Object.create(LanePlotObj);
-            lanePlot.init(options, element);
-            lanePlot.resize();
+            // init vacuumGantt
+            var vacuumGantt = Object.create(VacuumGanttObj);
+            vacuumGantt.init(options, element);
+            vacuumGantt.resize();
 
             // window resize
             $(window).resize(function () {
-                lanePlot.resize();
+                vacuumGantt.resize();
             });
         });
     }
 
-    // default LanePlot configuration
-    $.fn.lanePlot.options = {
+    // default VacuumGantt configuration
+    $.fn.vacuumGantt.options = {
         data: [],
         settings: {
             boundaries: {
@@ -499,13 +619,17 @@
                 width: 2629743830, // month
                 position: null
             },
-            laneHeight: '20px'
+            laneHeight: '20px',
+            grid: {
+                color: '#dedede',
+                date: 'MM-DD'
+            }
         },
         onLaneClick: null
     }
 
     // default Lane configuration
-    $.fn.lanePlot.laneOptions = {
+    $.fn.vacuumGantt.laneOptions = {
         id: null,
         description: "",
         icon: "",
@@ -514,7 +638,7 @@
     }
 
     // default Interval configuration
-    $.fn.lanePlot.intervalOptions = {
+    $.fn.vacuumGantt.intervalOptions = {
         startDate: null,
         endDate: null,
         progressDate: null,
@@ -524,7 +648,7 @@
     }
 
     // default Event configuration
-    $.fn.lanePlot.eventOptions = {
+    $.fn.vacuumGantt.eventOptions = {
         date: null,
         icon: "",
         classes: [],

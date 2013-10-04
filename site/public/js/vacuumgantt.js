@@ -1,5 +1,5 @@
 (function ($, window, undefined) {
-    $.fn.lanePlot2 = function (options) {
+    $.fn.vacuumGantt2 = function (options) {
 
         // initialize every element
         var errorFn = function (code, str, param) {
@@ -145,7 +145,7 @@
                 'class': 'svgWrapper'
             });
             $(eventContainer).append(svgWrapper);
-            $(element).addClass('lanePlot');
+            $(element).addClass('vacuumGantt');
             $(element)
                 .append(eventContainer)
                 .append(labelContainer)
@@ -520,7 +520,6 @@
                     test[1] = subtest.join(",");
 
                     d3.select(this).attr('d', test.join(" "));
-//                    console.log(d3.select(this).attr('d').split(" "));
                 });
                 // resize/reposition texts and icons
                 d3.selectAll(".interval text, .interval image, .event text, .event image").each(function () {

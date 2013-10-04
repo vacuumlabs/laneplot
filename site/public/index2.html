@@ -4,12 +4,13 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <title>LanePlot DEMO</title>
-    <link rel="stylesheet" href="css/laneplot.css" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="css/laneplot-demo.css" type="text/css" media="screen"/>
+    <title>VacuumGantt DEMO</title>
+    <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
-    <script type="text/javascript" src="js/laneplot-1.0.js"></script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
     <style type="text/css">
 
         .greenLabel {
@@ -53,7 +54,7 @@
     </style>
 </head>
 <body>
-<h1>LanePlot DEMO</h1>
+<h1>VacuumGantt DEMO</h1>
 <script type="text/javascript">
     var testBoundaries = {
         startDate: "2013/07/31",
@@ -162,8 +163,8 @@
 
     // on ready
     $(function () {
-        // create lanePlot
-        $("#demo").lanePlot({
+        // create vacuumGantt
+        $("#demo").vacuumGantt({
             data: testData,
             settings: {
                 boundaries: {
@@ -171,10 +172,15 @@
 //                    endDate : '2013/10/01'
                 },
                 viewport: {
-                    width: 2629743830, // 1 month in miliseconds
+                    width: 1000 * 60 * 60 * 24 * 30, // 1 month
                     position: null
                 },
-                laneHeight: "30px"
+                laneHeight: "30px",
+                grid: {
+                    color: 'black',
+                    resolution: 1000 * 60 * 60 * 24 * 30, // 1 month
+                    dateFormat: 'DD.MM.'
+                }
             },
             onLaneClick: function (lane) {
                 alert('Klikol si na lane s ID: ' + lane.id);
