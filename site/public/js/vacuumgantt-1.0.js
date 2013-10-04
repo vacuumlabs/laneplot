@@ -17,7 +17,7 @@
         };
     }
 
-    var Graphics = function() {
+    var Graphics = function () {
         var self = this;
 
         this.svg = {
@@ -42,13 +42,15 @@
             height: 0,
             laneHeight: 0
         };
-        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds) {
+        this.errorCallback = null;
+        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds, errorCallback) {
             self.svg.elem = svgElem;
             self.svg.wrapper = wrapperElem;
             self.labels.elem = labelsElem;
             self.labels.laneCount = laneCount;
             self.labels.laneHeight = laneHeight;
             self.viewport.milliseconds = parseInt(milliseconds);
+            self.errorCallback = errorCallback;
         };
         this.update = function (minValue, maxValue) {
             self.svg.minValue = minValue;
@@ -100,7 +102,7 @@
             });
 
             return "#" + gradientId;
-        },
+        };
         this.progressPolygon = function rounded_rect(x, y, w, h, r, full) {
             var retval;
             if (full) {
@@ -126,6 +128,37 @@
                 retval += " z";
             }
             return retval;
+        };
+        this.errorMsg = function (code, targetObject) {
+            if (typeof this.errorCallback !== "function") {
+                return false;
+            }
+
+            var errorMsg = {};
+            [
+                { code: 'ERR_NO_DATA',
+                    message: 'V konfigurácii chýba objekt data'
+                },
+                { code: 'ERR_DATE_FMT',
+                    message: 'Nepodarilo sa spracovat datum'
+                },
+                { code: 'ERR_BAD_EVENT_TYPE',
+                    message: 'Lane item nezodpoveda specifikacii ziadneho typu eventu alebo intervalu'
+                },
+                { code: 'ERR_BAD_RANGE',
+                    message: 'Nespravny rozsah datumov'
+                },
+                { code: 'ERR_BAD_HEIGHT',
+                    message: 'Hodnota laneHeight musi byt vacsia ako 0'
+                }
+            ].forEach(function (error) {
+                    if (error.code == code) {
+                        errorMsg = jQuery.extend({}, error);
+                        return false;
+                    }
+                })
+
+            this.errorCallback(code, jQuery.extend({}, targetObject));
         }
     }
 
@@ -175,7 +208,8 @@
                 leftCol,
                 self.options.data.length,
                 self.options.settings.laneHeight,
-                self.options.settings.viewport.width
+                self.options.settings.viewport.width,
+                self.options.onError
             );
 
             // create y/x axis & interval/event groups
@@ -264,7 +298,7 @@
                 .call(xAxis)
                 .selectAll("text")
                 .attr("y", 6)
-                .attr("x", 6)
+                .attr("x", 1)
                 .style("text-anchor", "start");
 
             // change x and y axis color
@@ -457,10 +491,19 @@
                 progressRect = self.intervalGroup.select("path.progress"),
                 unfinishedRect = self.intervalGroup.select("rect.unfinished");
 
+            if (self.startDate > self.endDate
+                || self.progressDate > self.endDate
+                || self.progressDate < self.startDate) {
+                self.graphics.errorMsg(
+                    'ERR_BAD_RANGE',
+                    self.data);
+            }
+
             // scale dimensions
             rectX = self.graphics.svg.scale(rectX);
             progressWidth = self.graphics.svg.scale(progressWidth);
             unfinishedWidth = self.graphics.svg.scale(unfinishedWidth);
+
 
             unfinishedRect
                 .attr('x', rectX)
