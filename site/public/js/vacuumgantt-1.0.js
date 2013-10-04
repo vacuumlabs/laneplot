@@ -17,8 +17,10 @@
         };
     }
 
-    var Graphics = {
-        svg: {
+    var Graphics = function() {
+        var self = this;
+
+        this.svg = {
             elem: null,
             wrapper: null,
             width: 0,
@@ -29,29 +31,26 @@
             rectMargin: 5,
             xAxisHeight: 20,
             gradients: []
-        },
-        viewport: {
+        };
+        this.viewport = {
             width: 0,
             milliseconds: 0
-        },
-        labels: {
+        };
+        this.labels = {
             elem: null,
             width: 126,
             height: 0,
             laneHeight: 0
-        },
-        init: function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds) {
-            var self = this;
+        };
+        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds) {
             self.svg.elem = svgElem;
             self.svg.wrapper = wrapperElem;
             self.labels.elem = labelsElem;
             self.labels.laneCount = laneCount;
             self.labels.laneHeight = laneHeight;
             self.viewport.milliseconds = parseInt(milliseconds);
-        },
-        update: function (minValue, maxValue) {
-            var self = this;
-
+        };
+        this.update = function (minValue, maxValue) {
             self.svg.minValue = minValue;
             self.svg.maxValue = maxValue;
             self.viewport.width = self.svg.wrapper.width();
@@ -63,10 +62,8 @@
             self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + self.svg.xAxisHeight;
             self.svg.elem.attr('width', self.svg.width);
             self.svg.elem.attr('height', self.svg.height);
-        },
-        generateGradient: function (color) {
-            var self = this;
-
+        }
+        this.generateGradient = function (color) {
             // check if exists
             var gradientId = ""
             self.svg.gradients.forEach(function (gradient) {
@@ -104,7 +101,7 @@
 
             return "#" + gradientId;
         },
-        progressPolygon: function rounded_rect(x, y, w, h, r, full) {
+        this.progressPolygon = function rounded_rect(x, y, w, h, r, full) {
             var retval;
             if (full) {
                 retval = "M " + (x + r) + "," + y;
@@ -137,7 +134,7 @@
         init: function (options, elem) {
             var self = this;
             self.elem = $(elem);
-            self.graphics = Object.create(Graphics);
+            self.graphics = new Graphics();
 
             // extend by default configuration
             self.options = $.extend({}, $.fn.vacuumGantt.options, options);
@@ -158,6 +155,7 @@
                 .append(rightCol)
                 .append(leftCol)
                 .append('<div class="clearfix"></div>');
+
             self.graphics.labels.elem = leftCol;
 
             // onClick callback
@@ -335,7 +333,7 @@
         render: function () {
             var self = this;
             // append div label
-            self.graphics.labels.elem.append(this.elem);
+            self.graphics.labels.elem.append(self.elem);
 
             // generate lane for y axis
             self.yaxis = self.graphics.svg.elem.select('g.yaxis')
@@ -488,14 +486,14 @@
                 self.intervalText.css('padding-left', icon.width() + 5);
             });
             //bring to front text
-            self.intervalText.bind('mouseover touchStart', function(){
+            self.intervalText.bind('mouseover touchStart', function () {
 //                $(this).siblings('.eventText, .intervalText').animate({
 //                    opacity: 0.25
 //                }, 300);
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
             })
-            self.intervalText.bind('mouseout', function(){
+            self.intervalText.bind('mouseout', function () {
 //                $(this).siblings('.eventText, .intervalText').animate({
 //                    opacity: 1
 //                }, 100);
@@ -555,7 +553,7 @@
 
             // init dimensions
             var textX = Math.abs(self.date - self.graphics.svg.minValue),
-                textY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex  + self.graphics.svg.rectMargin - 1,
+                textY = parseInt(self.graphics.labels.laneHeight) * self.laneIndex + self.graphics.svg.rectMargin - 1,
                 textHeight = parseInt(self.graphics.labels.laneHeight) - 2 * self.graphics.svg.rectMargin + 1;
 
             // scale dimensions
@@ -575,14 +573,14 @@
             });
 
             //bring to front
-            self.eventText.bind('mouseover touchStart', function(){
+            self.eventText.bind('mouseover touchStart', function () {
 //                $(this).siblings('.eventText, .intervalText').animate({
 //                    opacity: 0.25
 //                }, 300);
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
             })
-            self.eventText.bind('mouseout', function(){
+            self.eventText.bind('mouseout', function () {
 //                $(this).siblings('.eventText, .intervalText').animate({
 //                    opacity: 1
 //                }, 100);
