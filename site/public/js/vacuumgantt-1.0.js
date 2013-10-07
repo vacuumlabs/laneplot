@@ -179,6 +179,9 @@
                 },
                 { code: 'ERR_NO_PLUGIN',
                     message: 'Nepodarilo sa nacitat potrebne pluginy'
+                },
+                { code: 'ERR_INTERVAL_COLLISION',
+                    message: 'Intervaly v rovnakom riadku sa nemozu prekryvat'
                 }
             ].forEach(function (error) {
                     if (error.code == code) {
@@ -481,6 +484,7 @@
                     item.render();
                     self.items.push(item);
                 });
+                self.checkIntersections();
             }
         },
         render: function () {
@@ -511,6 +515,67 @@
                     }
                 ];
             self.yaxis.attr("d", lineFunction(lineData));
+        },
+        checkIntersections: function () {
+            var self = this;
+            //check intersections of intervals
+            var intervals = [];
+            self.items.forEach(function (item) {
+                if (item.type == "interval") {
+                    intervals.push(item);
+                }
+            });
+            // sort by startDate
+            var startInt = intervals.sort(function (a, b) {
+                if (a.startDate < b.startDate) {
+                    return -1;
+                } else if (a.startDate > b.startDate) {
+                    return 1;
+                } else if (a.startDate == b.startDate) {
+                    if (a.endDate < b.endDate) {
+                        return -1;
+                    } else if (a.endDate > b.endDate) {
+                        return 1;
+                    }
+                }
+                return 0;
+            });
+            // sort by endDate
+            var endInt = intervals.slice();
+            endInt.sort(function (a, b) {
+                if (a.endDate < b.endDate) {
+                    return -1;
+                } else if (a.endDate > b.endDate) {
+                    return 1;
+                } else if (a.endDate == b.endDate) {
+                    if (a.startDate < b.startDate) {
+                        return -1;
+                    } else if (a.startDate > b.startDate) {
+                        return 1;
+                    }
+                }
+                // indetical interval
+                self.graphics.errorMsg(
+                    'ERR_INTERVAL_COLLISION',
+                    startInt[i]);
+                return 0;
+            })
+
+            for (var i = 0; i < startInt.length - 1; i++) {
+                if (startInt[i].endDate > startInt[i + 1].startDate ) {
+                    self.graphics.errorMsg(
+                        'ERR_INTERVAL_COLLISION',
+                        startInt[i]);
+                }
+            }
+
+            for (var i = 0; i < endInt.length - 1; i++) {
+                if (endInt[i].startDate > endInt[i + 1].endDate) {
+                    self.graphics.errorMsg(
+                        'ERR_INTERVAL_COLLISION',
+                        endInt[i]);
+                }
+            }
         }
     }
 
