@@ -518,64 +518,87 @@
         },
         checkIntersections: function () {
             var self = this;
-            //check intersections of intervals
-            var intervals = [];
-            self.items.forEach(function (item) {
-                if (item.type == "interval") {
-                    intervals.push(item);
-                }
-            });
-            // sort by startDate
-            var startInt = intervals.sort(function (a, b) {
-                if (a.startDate < b.startDate) {
-                    return -1;
-                } else if (a.startDate > b.startDate) {
-                    return 1;
-                } else if (a.startDate == b.startDate) {
-                    if (a.endDate < b.endDate) {
-                        return -1;
-                    } else if (a.endDate > b.endDate) {
-                        return 1;
+            for (var i = 0; i < self.items.length; i++) {
+                for (var j = 0; j < self.items.length; j++) {
+                    if (self.items[i].type == 'event' ||
+                        self.items[j].type == 'event') {
+                        continue;
                     }
-                }
-                return 0;
-            });
-            // sort by endDate
-            var endInt = intervals.slice();
-            endInt.sort(function (a, b) {
-                if (a.endDate < b.endDate) {
-                    return -1;
-                } else if (a.endDate > b.endDate) {
-                    return 1;
-                } else if (a.endDate == b.endDate) {
-                    if (a.startDate < b.startDate) {
-                        return -1;
-                    } else if (a.startDate > b.startDate) {
-                        return 1;
+                    if (i == j) {
+                        continue;
                     }
-                }
-                // indetical interval
-                self.graphics.errorMsg(
-                    'ERR_INTERVAL_COLLISION',
-                    startInt[i]);
-                return 0;
-            })
-
-            for (var i = 0; i < startInt.length - 1; i++) {
-                if (startInt[i].endDate > startInt[i + 1].startDate ) {
+                    if ((self.items[i].startDate >= self.items[j].startDate &&
+                        self.items[i].startDate <= self.items[j].endDate) ||
+                        (self.items[i].endDate >= self.items[j].startDate &&
+                            self.items[i].endDate <= self.items[j].startDate)) {
                     self.graphics.errorMsg(
                         'ERR_INTERVAL_COLLISION',
-                        startInt[i]);
+                        {
+                            interval1: self.items[i].data,
+                            interval2: self.items[j].data
+                        });
+                    }
                 }
             }
-
-            for (var i = 0; i < endInt.length - 1; i++) {
-                if (endInt[i].startDate > endInt[i + 1].endDate) {
-                    self.graphics.errorMsg(
-                        'ERR_INTERVAL_COLLISION',
-                        endInt[i]);
-                }
-            }
+//            var self = this;
+//            //check intersections of intervals
+//            var intervals = [];
+//            self.items.forEach(function (item) {
+//                if (item.type == "interval") {
+//                    intervals.push(item);
+//                }
+//            });
+//            // sort by startDate
+//            var startInt = intervals.sort(function (a, b) {
+//                if (a.startDate < b.startDate) {
+//                    return -1;
+//                } else if (a.startDate > b.startDate) {
+//                    return 1;
+//                } else if (a.startDate == b.startDate) {
+//                    if (a.endDate < b.endDate) {
+//                        return -1;
+//                    } else if (a.endDate > b.endDate) {
+//                        return 1;
+//                    }
+//                }
+//                return 0;
+//            });
+//            // sort by endDate
+//            var endInt = intervals.slice();
+//            endInt.sort(function (a, b) {
+//                if (a.endDate < b.endDate) {
+//                    return -1;
+//                } else if (a.endDate > b.endDate) {
+//                    return 1;
+//                } else if (a.endDate == b.endDate) {
+//                    if (a.startDate < b.startDate) {
+//                        return -1;
+//                    } else if (a.startDate > b.startDate) {
+//                        return 1;
+//                    }
+//                }
+//                // indetical interval
+//                self.graphics.errorMsg(
+//                    'ERR_INTERVAL_COLLISION',
+//                    startInt[i]);
+//                return 0;
+//            })
+//
+//            for (var i = 0; i < startInt.length - 1; i++) {
+//                if (startInt[i].endDate > startInt[i + 1].startDate ) {
+//                    self.graphics.errorMsg(
+//                        'ERR_INTERVAL_COLLISION',
+//                        startInt[i]);
+//                }
+//            }
+//
+//            for (var i = 0; i < endInt.length - 1; i++) {
+//                if (endInt[i].startDate > endInt[i + 1].endDate) {
+//                    self.graphics.errorMsg(
+//                        'ERR_INTERVAL_COLLISION',
+//                        endInt[i]);
+//                }
+//            }
         }
     }
 
