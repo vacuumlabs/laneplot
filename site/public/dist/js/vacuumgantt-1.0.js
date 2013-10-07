@@ -90,19 +90,19 @@
             self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + timelinesHeight;
             self.svg.elem.attr('height', self.svg.height);
             self.svg.elem.attr('transform', 'translate(4,0)');
-        }
+        };
         this.generateGradient = function (color) {
             // check if exists
-            var gradientId = ""
+            var gradientId = "";
             self.svg.gradients.forEach(function (gradient) {
                 if (gradient.color0 == color[0] && gradient.color1 == color[1]) {
                     gradientId = gradient.id;
                 }
-            })
+            });
 
             if (gradientId != "") {
                 return gradientId;
-            }
+            };
 
             // create gradient
             gradientId = 'gradient' + self.svg.gradients.length;
@@ -158,7 +158,7 @@
         this.errorMsg = function (code, targetObject) {
             if (typeof this.errorCallback !== "function") {
                 return false;
-            }
+            };
 
             var errorMsg = {};
             [
@@ -187,12 +187,12 @@
                     if (error.code == code) {
                         errorMsg = jQuery.extend({}, error);
                         return false;
-                    }
-                })
+                    };
+                });
 
             this.errorCallback(code, jQuery.extend({}, targetObject));
         }
-    }
+    };
 
     // VacuumGantt object concept
     var VacuumGanttObj = {
@@ -420,7 +420,7 @@
 
                 // timeline level
                 lvl++;
-            })
+            });
 
 
             // change x and y axis color
@@ -430,7 +430,7 @@
                 self.graphics.svg.elem.selectAll(".yaxis path").style('stroke', settings.grid.color);
             }
         }
-    }
+    };
 
     // Lane object concept
     var LaneObj = {
@@ -541,7 +541,7 @@
                 }
             }
         }
-    }
+    };
 
     // Interval object concept
     var IntervalObj = {
@@ -711,12 +711,12 @@
             self.intervalText.bind('mouseover touchStart', function () {
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
-            })
+            });
             self.intervalText.bind('mouseout', function () {
                 $(this).removeClass('toFront');
-            })
+            });
         }
-    }
+    };
 
     // Event object concept
     var EventObj = {
@@ -809,18 +809,18 @@
                     self.svg.eventOverflow = 0;
                     self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow);
                 }
-            })
+            });
 
             //bring to front
             self.eventText.bind('mouseover touchStart', function () {
                 $(this).siblings('.toFront').removeClass('toFront');
                 $(this).addClass('toFront');
-            })
+            });
             self.eventText.bind('mouseout', function () {
                 $(this).removeClass('toFront');
-            })
+            });
         }
-    }
+    };
 
     // plot initialization
     $.fn.vacuumGantt = function (options) {
@@ -836,7 +836,7 @@
                 vacuumGantt.resize();
             });
         });
-    }
+    };
 
     // default VacuumGantt configuration
     $.fn.vacuumGantt.options = {
@@ -857,7 +857,7 @@
             }
         },
         onLaneClick: null
-    }
+    };
 
     // default Lane configuration
     $.fn.vacuumGantt.laneOptions = {
@@ -866,19 +866,19 @@
         icon: "",
         classes: "",
         items: []
-    }
+    };
 
     // default Interval configuration
     $.fn.vacuumGantt.intervalOptions = {
         icon: "",
         classes: [],
         label: ""
-    }
+    };
 
     // default Event configuration
     $.fn.vacuumGantt.eventOptions = {
         icon: "",
         classes: [],
         label: ""
-    }
+    };
 })(jQuery, window);
