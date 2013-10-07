@@ -1,0 +1,165 @@
+/*
+    VacuumGantt CSS
+ */
+.vacuumGantt {
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+    color: #000;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.vacuumGantt * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.clearfix {
+    clear: both;
+}
+
+/*
+    Left column (lane label container)
+ */
+.vacuumGantt > .leftCol {
+    float: left;
+    margin-left: -100%;
+}
+
+.vacuumGantt > .leftCol div.lane-label {
+    padding: 0 5px;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    border-left: 1px solid #E5E5E5;
+    position: relative;
+    display: block;
+}
+
+.vacuumGantt > .leftCol .lane-icon {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    bottom: 0;
+    margin: auto;
+}
+
+
+.vacuumGantt > .leftCol div.lane-label:last-child {
+    border-bottom: 1px solid #E5E5E5;
+}
+
+.vacuumGantt > .leftCol div:nth-child(odd) {
+    background: #EEEEEE;
+}
+
+/*
+    Right column (event/interval container)
+ */
+.vacuumGantt > .rightCol {
+    float: left;
+    width: 100%;
+}
+
+.vacuumGantt > .rightCol .svgWrapper {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    border: 1px solid #E5E5E5;
+    outline: none;
+    position: relative;
+}
+
+.vacuumGantt > .rightCol .svgWrapper::-webkit-scrollbar {
+    -webkit-appearance: none;
+}
+
+.vacuumGantt > .rightCol .svgWrapper::-webkit-scrollbar:horizontal {
+    height: 11px;
+}
+
+.vacuumGantt > .rightCol .svgWrapper::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+/*
+    SVG styles
+ */
+.vacuumGantt > .rightCol svg {
+    overflow: hidden;
+    z-index: 0;
+}
+
+.vacuumGantt > .rightCol .yaxis path {
+    fill: none;
+    stroke: #7D7F7E;
+    shape-rendering: crispEdges;
+    stroke-dasharray: 2, 2;
+}
+
+.vacuumGantt > .rightCol .xaxis text {
+    font: 10px Arial;
+    fill: #7D7F7E;
+    font-weight: bold;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.vacuumGantt > .rightCol .xaxis line,
+.vacuumGantt > .rightCol .yaxis path,
+.vacuumGantt > .rightCol .xaxis path {
+    fill: none;
+    stroke: #7D7F7E;
+    shape-rendering: crispEdges;
+}
+
+.vacuumGantt > .rightCol .xaxis line {
+    stroke-dasharray: 2, 2;
+}
+
+.vacuumGantt > .rightCol .xaxis line.solid {
+    stroke-dasharray: 0;
+}
+
+/*
+    Events, intervals (text, icon)
+ */
+.vacuumGantt > .rightCol .eventText,
+.vacuumGantt > .rightCol .intervalText {
+    position: absolute;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.vacuumGantt > .rightCol .eventText {
+    background: white;
+    z-index: 2;
+}
+
+.vacuumGantt > .rightCol .intervalText {
+    z-index: 1;
+}
+
+.vacuumGantt > .rightCol .toFront {
+    z-index: 3;
+}
+
+.vacuumGantt > .rightCol .eventText .eventIcon,
+.vacuumGantt > .rightCol .intervalText .intervalIcon {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+}
+
