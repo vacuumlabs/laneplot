@@ -43,12 +43,12 @@
         };
         this.labels = {
             elem: null,
-            width: 126,
+            width: 0,
             height: 0,
             laneHeight: 0
         };
         this.errorCallback = null;
-        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds, timelines, errorCallback) {
+        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, labelsWidth, laneHeight, milliseconds, timelines, errorCallback) {
             if (parseInt(laneHeight) <= 0) {
                 this.errorMsg(
                     'ERR_BAD_HEIGHT',
@@ -58,6 +58,7 @@
             self.svg.wrapper = wrapperElem;
             self.labels.elem = labelsElem;
             self.labels.laneCount = laneCount;
+            self.labels.width = labelsWidth;
             self.labels.laneHeight = laneHeight;
             self.viewport.milliseconds = parseInt(milliseconds);
 
@@ -83,6 +84,8 @@
                 self.svg.width = self.svg.scale(Math.abs(maxValue - minValue));
                 self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow + self.svg.padding);
             }
+            self.labels.elem.css("width", self.labels.width);
+            self.svg.wrapper.css("margin-left", self.labels.width);
             var timelinesHeight = self.svg.xAxisHeight * self.timelines.length;
             self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + timelinesHeight;
             self.svg.elem.attr('height', self.svg.height);
@@ -260,6 +263,7 @@
                 svgWrapper,
                 leftCol,
                 self.options.data.length,
+                self.options.settings.labelsWidth,
                 self.options.settings.laneHeight,
                 self.options.settings.viewport.width,
                 self.options.settings.grid.timelines,
@@ -816,6 +820,7 @@
                 width: 2629743830, // month
                 position: 0
             },
+            labelsWidth: '130px',
             laneHeight: '30px',
             grid: {
                 color: '#000',

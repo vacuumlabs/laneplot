@@ -177,8 +177,8 @@ data:{
       },
 
       grid: {
-         /* Optional parameter, default value is #dedede. Sets the color of the grid lines. */
-         color: &quot;#dedede&quot;,
+         /* Optional parameter, default value is #000000. Sets the color of the grid lines. */
+         color: &quot;#000000&quot;,
         /*
          *  Sets timelines at X axis of the grid
          *  Default timeline:
@@ -194,8 +194,10 @@ data:{
             }
         ]
        }
-      /* Height of the single lane in pixels */
-      laneHeight: 50
+      /* Width of lane labels */
+      labelsWidth: 50,
+      /* Height of the single lane in pixels. Default value: 30px */
+      laneHeight: "30px"
     },
 
     /* Optional event handler of taps/clicks on lane */

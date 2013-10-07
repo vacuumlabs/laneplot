@@ -24,7 +24,6 @@
  */
 .vacuumGantt > .leftCol {
     float: left;
-    width: 126px;
     margin-left: -100%;
 }
 
@@ -68,7 +67,6 @@
     overflow-x: scroll;
     overflow-y: hidden;
     border: 1px solid #E5E5E5;
-    margin-left: 126px;
     outline: none;
     position: relative;
 }
