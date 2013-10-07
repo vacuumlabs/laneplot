@@ -77,11 +77,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="./" class="navbar-brand">jQuery VacuumGantt</a>
+            <a href="index.html" class="navbar-brand">jQuery VacuumGantt</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="./">Home</a></li>
+                <li><a href="index.html">Home</a></li>
                 <li class="active"><a href="documentation.html">Documentation</a></li>
                 <li><a href="examples.html">Examples</a></li>
                 <li><a href="vacuumgantt-1.0.zip">Download</a></li>
@@ -90,7 +90,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12">
-            <h3>Config</h3>
+            <h3>Configuration format</h3>
             <pre class="prettyprint linenums lang-js">
 /* data consists of an array of lane objects.*/
 data:{
@@ -194,8 +194,8 @@ data:{
             }
         ]
        }
-      /* Width of lane labels */
-      labelsWidth: 50,
+      /* Width of lane labels. Default value: 130px */
+      labelsWidth: "130px",
       /* Height of the single lane in pixels. Default value: 30px */
       laneHeight: "30px"
     },
