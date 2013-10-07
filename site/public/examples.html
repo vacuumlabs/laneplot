@@ -13,16 +13,21 @@
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/jumbotron-narrow.css" rel="stylesheet"/>
 
+    <!-- Code highlighter CSS -->
+    <link href="css/prettify.css" rel="stylesheet"/>
+
     <!-- VacuumGantt CSS -->
     <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
-
 
     <!-- VacuumGantt JS -->
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
     <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
+
+    <!-- Code highlighter JS -->
+    <script type="text/javascript" src="js/prettify.js"></script>
 
     <!-- Bootstrap JS -->
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -34,7 +39,7 @@
     <![endif]-->
 </head>
 
-<body>
+<body onload="prettyPrint()">
 
 <div class="container">
     <div class="navbar navbar-default">
@@ -101,7 +106,7 @@
                             "progressDate": "2013/07/05",
                             "classes": ["green"],
                             "progressColor": ['#0A7610', '#00AF06'],
-                            "unfinishedColor": ["#4C4C4C","#7D7D7D"],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
                             "label": "Interval 1"
                         }
                     ]
@@ -113,45 +118,29 @@
                 data: demo1Data,
                 settings: {
                     boundaries: {
-                    startDate : '2013/05/31',
-                    endDate : '2013/07/31'
+                        startDate: '2013/05/31',
+                        endDate: '2013/07/31'
                     },
                     viewport: {
                         width: 30 * 24 * 60 * 60 * 1000,
-                        position: null
                     },
                     laneHeight: "30px",
                     grid: {
-                        resolution: 1000 * 60 * 60 * 24,
-                        dateFormat: 'DD'
+                        timelines: [{
+                            resolution: 1000 * 60 * 60 * 24,
+                            dateFormat: 'DD'
+                        }]
                     }
-                },
-                onLaneClick: function (lane) {
-                },
-                onError: function (data) {
                 }
             });
-        });
-    </script>
-    <div class="row no-space">
-        <div class="col-lg-12">
-            <h4>Events collision</h4>
-            <!-- VacuumGantt placeholder -->
-            <div id="demo1"></div>
-        </div>
-    </div>
 
-
-    <script type="text/javascript">
-        // on ready
-        $(function () {
             var demo2Data = [
                 {
                     "id": "#lane1",
                     "description": "Lane 1",
                     "items": [
                         {
-                            "date": "2013/05/30 12:00",
+                            "date": "2013/05/30 04:00",
                             "classes": [],
                             "label": "Event 1"
                         },
@@ -167,12 +156,12 @@
                     "description": "Lane 2",
                     "items": [
                         {
-                            "startDate": "2013/05/30 10:00",
+                            "startDate": "2013/05/30 06:00",
                             "endDate": "2013/05/30 22:00",
                             "progressDate": "2013/05/30 18:00",
                             "classes": ["green"],
                             "progressColor": ['#0A7610', '#00AF06'],
-                            "unfinishedColor": ["#4C4C4C","#7D7D7D"],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
                             "label": "Interval 1"
                         }
                     ]
@@ -184,34 +173,157 @@
                 data: demo2Data,
                 settings: {
                     boundaries: {
-                        startDate : '2013/05/30 00:00',
-                        endDate : '2013/05/30 23:59'
+                        startDate: '2013/05/30 00:00',
+                        endDate: '2013/05/30 23:59'
                     },
                     viewport: {
                         width: 1000 * 60 * 60 * 12,
-                        position: null
                     },
                     laneHeight: "30px",
                     grid: {
                         color: '#428BCA',
-                        resolution: 1000 * 60 * 60,
-                        dateFormat: 'HH:mm'
+                        timelines: [{
+                            resolution: 1000 * 60 * 60,
+                            dateFormat: 'HH:mm'
+                        }]
                     }
-                },
-                onLaneClick: function (lane) {
-                },
-                onError: function (data) {
                 }
             });
         });
     </script>
+
+    <h3>Event/Interval collision</h3>
+<pre class="prettyprint linenums:1 lang-js">
+$(&quot;#demo1&quot;).vacuumGantt({
+    data: demo1Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/05/31',
+            endDate: '2013/07/31'
+        },
+        viewport: {
+            width: 30 * 24 * 60 * 60 * 1000,
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            timelines: [{
+                resolution: 1000 * 60 * 60 * 24,
+                dateFormat: 'DD'
+            }]
+        }
+    }
+});
+</pre>
     <div class="row no-space">
         <div class="col-lg-12">
-            <h4>24 hours timeline</h4>
+            <!-- VacuumGantt placeholder -->
+            <div id="demo1"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <h3>24 hour timeline</h3>
+    <div class="row">
+        <div class="col-lg-12">
+<pre class="prettyprint linenums:1 lang-js">
+$(&quot;#demo2&quot;).vacuumGantt({
+    data: demo2Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/05/30 00:00',
+            endDate: '2013/05/30 23:59'
+        },
+        viewport: {
+            width: 1000 * 60 * 60 * 12,
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            color: '#428BCA',
+            timelines: [{
+                resolution: 1000 * 60 * 60,
+                dateFormat: 'HH:mm'
+            }]
+        }
+    }
+});
+</pre>
+    </div>
+    </div>
+    <div class="row no-space">
+        <div class="col-lg-12">
             <!-- VacuumGantt placeholder -->
             <div id="demo2"></div>
         </div>
     </div>
+    <hr/>
+
+    <!--<h3>Click callback & initial date</h3>-->
+<!--<pre class="prettyprint linenums:1 lang-js">-->
+ <!--$(&quot;#demo2&quot;).vacuumGantt({-->
+    <!--data: demo2Data,-->
+    <!--settings: {-->
+        <!--boundaries: {-->
+            <!--startDate: '2013/05/30 00:00',-->
+            <!--endDate: '2013/05/30 23:59'-->
+        <!--},-->
+        <!--viewport: {-->
+            <!--width: 1000 * 60 * 60 * 12,-->
+            <!--position: null-->
+        <!--},-->
+        <!--laneHeight: &quot;30px&quot;,-->
+        <!--grid: {-->
+            <!--color: '#428BCA',-->
+            <!--resolution: 1000 * 60 * 60,-->
+            <!--dateFormat: 'HH:mm'-->
+        <!--}-->
+    <!--},-->
+    <!--onLaneClick: function (lane) {-->
+    <!--},-->
+    <!--onError: function (data) {-->
+    <!--}-->
+<!--});-->
+<!--</pre>-->
+    <!--<div class="row no-space">-->
+        <!--<div class="col-lg-12">-->
+            <!--&lt;!&ndash; VacuumGantt placeholder &ndash;&gt;-->
+            <!--<div id="demo3"></div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<hr/>-->
+
+    <!--<h3>Custom gradient colors & icons</h3>-->
+<!--<pre class="prettyprint linenums:1 lang-js">-->
+ <!--$(&quot;#demo2&quot;).vacuumGantt({-->
+    <!--data: demo2Data,-->
+    <!--settings: {-->
+        <!--boundaries: {-->
+            <!--startDate: '2013/05/30 00:00',-->
+            <!--endDate: '2013/05/30 23:59'-->
+        <!--},-->
+        <!--viewport: {-->
+            <!--width: 1000 * 60 * 60 * 12,-->
+            <!--position: null-->
+        <!--},-->
+        <!--laneHeight: &quot;30px&quot;,-->
+        <!--grid: {-->
+            <!--color: '#428BCA',-->
+            <!--resolution: 1000 * 60 * 60,-->
+            <!--dateFormat: 'HH:mm'-->
+        <!--}-->
+    <!--},-->
+    <!--onLaneClick: function (lane) {-->
+    <!--},-->
+    <!--onError: function (data) {-->
+    <!--}-->
+<!--});-->
+<!--</pre>-->
+    <!--<div class="row no-space">-->
+        <!--<div class="col-lg-12">-->
+            <!--&lt;!&ndash; VacuumGantt placeholder &ndash;&gt;-->
+            <!--<div id="demo4"></div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--<hr/>-->
 
 
     <div class="footer">

@@ -29,12 +29,14 @@
             maxValue: 0,
             scale: null,
             rectMargin: 5,
+            timelinesCount: 1,
             xAxisHeight: 20,
             eventOverflow: 0,
             gradients: [],
             position: 0,
             padding: 5
         };
+        this.timelines = [];
         this.viewport = {
             width: 0,
             milliseconds: 0
@@ -46,11 +48,11 @@
             laneHeight: 0
         };
         this.errorCallback = null;
-        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds, errorCallback) {
+        this.init = function (svgElem, wrapperElem, labelsElem, laneCount, laneHeight, milliseconds, timelines, errorCallback) {
             if (parseInt(laneHeight) <= 0) {
                 this.errorMsg(
                     'ERR_BAD_HEIGHT',
-                    laneHeight);
+                    laneHeight)
             }
             self.svg.elem = svgElem;
             self.svg.wrapper = wrapperElem;
@@ -58,19 +60,31 @@
             self.labels.laneCount = laneCount;
             self.labels.laneHeight = laneHeight;
             self.viewport.milliseconds = parseInt(milliseconds);
+
+            if (!(timelines instanceof Array) || timelines.length == 0) {
+                self.timelines.push({
+                    resolution: Math.ceil(self.viewport.milliseconds),
+                    dateFormat: "MM-DD"
+                });
+            } else {
+                self.timelines = timelines;
+            }
             self.errorCallback = errorCallback;
         };
         this.update = function (minValue, maxValue) {
-            self.svg.minValue = minValue;
-            self.svg.maxValue = maxValue;
-            self.viewport.width = self.svg.wrapper.width();
-            self.svg.scale = d3.scale.linear()
-                .domain([0, self.viewport.milliseconds])
-                .range([0, self.viewport.width]);
+            if (minValue && maxValue) {
+                self.svg.minValue = minValue;
+                self.svg.maxValue = maxValue;
+                self.viewport.width = self.svg.wrapper.width();
+                self.svg.scale = d3.scale.linear()
+                    .domain([0, self.viewport.milliseconds])
+                    .range([0, self.viewport.width]);
 
-            self.svg.width = self.svg.scale(Math.abs(maxValue - minValue));
-            self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + self.svg.xAxisHeight;
-            self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow + self.svg.padding);
+                self.svg.width = self.svg.scale(Math.abs(maxValue - minValue));
+                self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow + self.svg.padding);
+            }
+            var timelinesHeight = self.svg.xAxisHeight * self.timelines.length;
+            self.svg.height = self.labels.laneCount * parseInt(self.labels.laneHeight) + timelinesHeight;
             self.svg.elem.attr('height', self.svg.height);
             self.svg.elem.attr('transform', 'translate(4,0)');
         }
@@ -182,7 +196,7 @@
             self.graphics = new Graphics();
 
             // extend by default configuration
-            self.options = $.extend({}, $.fn.vacuumGantt.options, options);
+            self.options = $.extend(true, {}, $.fn.vacuumGantt.options, options);
 
             // check if momentjs and d3 exists
             if (typeof moment === "undefined") {
@@ -248,13 +262,27 @@
                 self.options.data.length,
                 self.options.settings.laneHeight,
                 self.options.settings.viewport.width,
+                self.options.settings.grid.timelines,
                 self.options.onError
             );
 
             // create y/x axis & interval/event groups
-            self.graphics.svg.elem.append('g').attr('class', 'xaxis');
             self.graphics.svg.elem.append('g').attr('class', 'yaxis');
+            self.graphics.timelines.sort(function compare(a, b) {
+                if (a.resolution > b.resolution)
+                    return -1;
+                if (a.resolution < b.resolution)
+                    return 1;
+                return 0;
+            });
+            var lvl = 1;
+            self.graphics.timelines.forEach(function () {
+                self.graphics.svg.elem.append('g').attr('class', 'xaxis time' + lvl);
+                // timeline level
+                lvl++;
+            });
             self.graphics.svg.elem.append('g').attr('class', 'items');
+
 
             // init lanes
             self.lanes = [];
@@ -343,43 +371,55 @@
                     self.graphics.svg.wrapper.scrollLeft(self.graphics.svg.scale(pos))
                 }
             }
-
-            // grid resolution
-            var xAxisTicks = 5;
-            if (!isNaN(settings.grid.resolution)) {
-                xAxisTicks = Math.abs(settings.boundaries.startDate.getTime() - settings.boundaries.endDate.getTime());
-                xAxisTicks = Math.floor(xAxisTicks / settings.grid.resolution);
-            }
-            // resize x Axis
-            var xAxisGroup = self.graphics.svg.elem.select(".xaxis"),
-                xAxisDomain = [settings.boundaries.startDate, settings.boundaries.endDate],
+            // timelines
+            var xAxisTicks, xAxisGroup, xAxisDomain, xAxisScale, xAxis, lvl = 1;
+            self.graphics.timelines.forEach(function (timeline) {
+                xAxisTicks = 5;
+                if (!isNaN(timeline.resolution)) {
+                    xAxisTicks = Math.abs(settings.boundaries.startDate.getTime() - settings.boundaries.endDate.getTime());
+                    xAxisTicks = Math.floor(xAxisTicks / timeline.resolution);
+                }
+                // resize x Axis
+                xAxisGroup = self.graphics.svg.elem.select(".xaxis.time" + lvl);
+                xAxisDomain = [settings.boundaries.startDate, settings.boundaries.endDate];
                 xAxisScale = d3.time.scale()
                     .domain(xAxisDomain)
                     .range(xAxisDomain.map(d3.time.scale()
                         .domain(xAxisDomain)
-                        .range([0, self.graphics.svg.width]))),
+                        .range([0, self.graphics.svg.width])));
                 xAxis = d3.svg.axis()
                     .scale(xAxisScale)
                     .orient("bottom")
                     .tickSize(-(self.graphics.svg.height))
                     .ticks(xAxisTicks)
                     .tickFormat(function (d) {
-                        return moment(d).format(settings.grid.dateFormat);
+                        return moment(d).format(timeline.dateFormat);
                     });
 
-            // regenerate
-            xAxisGroup.selectAll().remove();
-            xAxisGroup.attr("transform", "translate(0, " + (self.graphics.svg.height - self.graphics.svg.xAxisHeight) + ")")
-                .call(xAxis)
-                .selectAll("text")
-                .attr("y", 6)
-                .attr("x", 1)
-                .style("text-anchor", "start");
+                // regenerate axis
+                xAxisGroup.selectAll().remove();
+                xAxisGroup.attr("transform", "translate(0, " + (self.graphics.svg.height - self.graphics.svg.xAxisHeight * (lvl)) + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .attr("y", 6)
+                    .attr("x", 1)
+                    .style("text-anchor", "start");
+                if (lvl != self.graphics.timelines.length) {
+                    xAxisGroup.selectAll("line")
+                        .attr("transform", "translate(0, " + self.graphics.svg.xAxisHeight + ")")
+                }
+                // remove last
+                d3.select(xAxisGroup.selectAll('g')[0].pop()).remove();
+
+                // timeline level
+                lvl++;
+            })
+
 
             // change x and y axis color
             if (typeof settings.grid.color === "string" && typeof settings.grid.color != "") {
-                xAxisGroup.selectAll('text').style('fill', settings.grid.color);
-                xAxisGroup.selectAll('line, path').style('stroke', settings.grid.color);
+                self.graphics.svg.elem.selectAll('text').style('fill', settings.grid.color);
+                self.graphics.svg.elem.selectAll('line, path').style('stroke', settings.grid.color);
                 self.graphics.svg.elem.selectAll(".yaxis path").style('stroke', settings.grid.color);
             }
         }
@@ -733,11 +773,9 @@
                 // resize svg
                 if (textX.toFixed(2) + parseInt($(this).width) > self.svg.width) {
                     self.svg.eventOverflow = Math.abs(textX.toFixed(2) + parseInt($(this).width) - self.svg.width);
+                    self.svg.eventOverflow = 0;
                     self.svg.elem.attr('width', self.svg.width + self.svg.eventOverflow);
                 }
-                // resize grid
-//                var xAxisGroup = self.graphics.svg.elem.select('g.yaxis');
-//                xAxisGroup.attr('transform', 'scale(2,0)');
             })
 
             //bring to front
@@ -778,10 +816,10 @@
                 width: 2629743830, // month
                 position: 0
             },
-            laneHeight: '20px',
+            laneHeight: '30px',
             grid: {
-                color: '#dedede',
-                date: 'MM-DD'
+                color: '#000',
+                timelines: []
             }
         },
         onLaneClick: null

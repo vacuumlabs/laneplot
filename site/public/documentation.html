@@ -13,6 +13,9 @@
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/jumbotron-narrow.css" rel="stylesheet"/>
 
+    <!-- Code highlighter CSS -->
+    <link href="css/prettify.css" rel="stylesheet"/>
+
     <!-- VacuumGantt CSS -->
     <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
@@ -23,6 +26,9 @@
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
     <script type="text/javascript" src="js/demo-data.js"></script>
+
+    <!-- Code highlighter JS -->
+    <script type="text/javascript" src="js/prettify.js"></script>
 
     <!-- Bootstrap JS -->
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -61,7 +67,7 @@
     </script>
 </head>
 
-<body>
+<body onload="prettyPrint()">
 
 <div class="container">
     <div class="navbar navbar-default">
@@ -84,7 +90,119 @@
     </div>
     <div class="row">
         <div class="col-lg-12">
-            Documentation
+            <h3>Config</h3>
+            <pre class="prettyprint linenums lang-js">
+/* data consists of an array of lane objects.*/
+data:{
+  [{
+
+      /* Optional field for further lane identification. */
+      id: &quot;voluntary&quot;,
+
+      /* Arbitrary HTML code to render on the left side of the lane */
+
+      description: &quot;&lt;some html&gt;&quot;,
+
+      /* Optional label icon */
+      icon: &quot;/path/to&quot;,
+
+      /* List of lane intervals and one time events */
+      items: [
+        /* Example interval definition */
+        {
+          /* Beginning of the interval */
+          startDate: &quot;date-string&quot;,
+
+          /* End of the interval */
+          endDate: &quot;date-string&quot;,
+
+          /* Optional field to mark the */
+          progressDate: &quot;date-string&quot;,
+
+          /* CSS classes of interval */
+          classes: [&quot;red&quot;, &quot;important&quot;],
+
+          /* Optional event icon */
+          icon: &quot;/path/to&quot;,
+
+          /* Optional. Progress color (simple color = '#dedede',
+            gradient color = ['#dedede', '#ffffff'])
+            */
+          progressColor: [&quot;#dedede&quot;, &quot;#ffffff&quot;],
+
+          /* Optional. Unfinished color (simple color = '#dedede',
+            gradient color = ['#dedede', '#ffffff'])
+          */
+          unfinishedColor: &quot;#ffffff&quot;,
+
+          /* Optional text to display inside interval */
+          label: &quot;Prozac&quot;
+        },
+
+        /* Example one time event definition */
+        {
+
+          date: &quot;date-string&quot;,
+
+          /* CSS classes of interval */
+          classes: [&quot;green&quot;, &quot;boring&quot;],
+
+          /* Optional event icon */
+          icon: &quot;/path/to&quot;,
+
+          /* Optional text to display on the right side of the event */
+          label: &quot;EEG&quot;
+        }
+      ]
+    },
+
+    settings: {
+      /**
+       * Describes the leftmost and rightmost date that can be scrolled to.
+       * Both startDate and endDate are optional, and default to the
+         first and last date used in items object.
+        */
+      boundaries: {
+        /* Optional, describes leftmost date on the time scale */
+        startDate: &quot;date-string&quot;,
+        /* Optional, describes rightmost date on the time scale */
+        endDate: &quot;date-string&quot;
+      },
+
+      viewport: {
+        /* Width in miliseconds */
+        width: 1000 * 60 * 60 * 24 * 30,
+        /* Optional date to center the viewport. Defaults to the leftmost boundary. */
+        position: null
+      },
+
+      grid: {
+         /* Optional parameter, default value is #dedede. Sets the color of the grid lines. */
+         color: &quot;#dedede&quot;,
+        /*
+         *  Sets timelines at X axis of the grid
+         *  Default timeline:
+         *      resolution = viewport.width / 5
+         *      defateFormat = MM-DD
+         */
+        timelines: [
+            {
+                /* The interval in miliseconds in which a vertical gridline is drawn. */
+                resolution: 1000 * 60 * 60 * 24 /* 1 day */,
+                /*Sets date format of timeline */
+                dateFormat: &quot;MM-DD&quot;
+            }
+        ]
+       }
+      /* Height of the single lane in pixels */
+      laneHeight: 50
+    },
+
+    /* Optional event handler of taps/clicks on lane */
+    onLaneClick: function (lane) { /* Do something */ },
+    onError: function (errorObj, targetObj) { /* Do something */ }
+  };
+</pre>
         </div>
     </div>
 

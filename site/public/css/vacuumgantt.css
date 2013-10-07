@@ -91,8 +91,6 @@
     SVG styles
  */
 .vacuumGantt > .rightCol svg {
-    -webkit-transform: translate(4px, 0);
-    -ms-transform: translate(4px, 0);
     overflow: hidden;
     z-index: 0;
 }
@@ -121,6 +119,10 @@
 
 .vacuumGantt > .rightCol .xaxis line {
     stroke-dasharray: 2, 2;
+}
+
+.vacuumGantt > .rightCol .xaxis line.solid {
+    stroke-dasharray: 0;
 }
 
 /*

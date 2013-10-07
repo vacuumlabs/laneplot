@@ -22,7 +22,7 @@
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
-    <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.0.js?aasdsd"></script>
     <script type="text/javascript" src="js/demo-data.js"></script>
 
     <!-- Bootstrap JS -->
@@ -49,8 +49,13 @@
                     },
                     laneHeight: "30px",
                     grid: {
-                        resolution: 1000 * 60 * 60 * 24, // 1 day
-                        dateFormat: 'DD'
+                        color: "gray",
+                        timelines: [
+                            {
+                                resolution: 1000 * 60 * 60 * 24, // 1 day
+                                dateFormat: 'DD'
+                            }
+                        ]
                     }
                 },
                 onLaneClick: function (lane) {
