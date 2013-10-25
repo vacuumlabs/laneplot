@@ -18,13 +18,15 @@
 
     <!-- VacuumGantt CSS -->
     <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/jquery.qtip.min.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
 
     <!-- VacuumGantt JS -->
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
-    <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
+    <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.1.min.js"></script>
 
     <!-- Code highlighter JS -->
     <script type="text/javascript" src="js/prettify.js"></script>
@@ -37,6 +39,14 @@
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
     <![endif]-->
+
+    <style type="text/css">
+        .customTooltip {
+            background: #C1E5AC;
+            border: 1px solid #006301;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 
 <body onload="prettyPrint()">
@@ -56,12 +66,11 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="documentation.html">Documentation</a></li>
                 <li class="active"><a href="examples.html">Examples</a></li>
-                <li><a href="vacuumgantt-1.0.zip">Download</a></li>
+                <li><a href="vacuumgantt-1.1.zip">Download</a></li>
             </ul>
         </div>
     </div>
 
-    <h3>1. Basic example</h3>
     <script type="text/javascript">
         // on ready
         $(function () {
@@ -185,7 +194,7 @@
                         endDate: '2013/07/31'
                     },
                     viewport: {
-                        width: 30 * 24 * 60 * 60 * 1000,
+                        width: 30 * 24 * 60 * 60 * 1000
                     },
                     laneHeight: "30px",
                     grid: {
@@ -239,7 +248,7 @@
                         endDate: '2013/05/30 23:59'
                     },
                     viewport: {
-                        width: 1000 * 60 * 60 * 12,
+                        width: 1000 * 60 * 60 * 12
                     },
                     laneHeight: "30px",
                     grid: {
@@ -249,6 +258,71 @@
                             dateFormat: 'HH:mm'
                         }]
                     }
+                }
+            });
+
+
+            var demo3Data = [
+                {
+                    "id": "#lane1",
+                    "description": "Lane 1",
+                    "items": [
+                        {
+                            "date": "2013/02/15",
+                            "classes": [],
+                            "label": "Event 1",
+                            "tooltip": "Additional info for <b>Event 1</b> <br /> <em>just look at it!</em>"
+                        },
+                        {
+                            "date": "2013/02/25",
+                            "classes": [],
+                            "label": "Event 2",
+                            "tooltip": "Additional info for Event 2"
+                        }
+                    ]
+                },
+                {
+                    "id": "#lane2",
+                    "description": "Lane 2",
+                    "items": [
+                        {
+                            "startDate": "2013/02/20",
+                            "endDate": "2013/04/15",
+                            "progressDate": "2013/04/15",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 1",
+                            "tooltip": {
+                                "content": "<strong>Interval 1</strong> tooltip with custom style",
+                                "classes": "customTooltip"
+                            }
+                        }
+                    ]
+                }
+            ]
+
+            $("#demo3").vacuumGantt({
+                data: demo3Data,
+                settings: {
+                    boundaries: {
+                        startDate: '2013/02/10',
+                        endDate: '2013/04/30'
+                    },
+                    viewport: {
+                        width: 30 * 24 * 60 * 60 * 1000
+                    },
+                    laneHeight: "30px",
+                    grid: {
+                        color: 'gray',
+                        timelines: [{
+                            resolution: 1000 * 60 * 60 * 24,
+                            dateFormat: 'DD'
+                        }]
+                    }
+                },
+                onError: function(e){
+                    console.log(e);
                 }
             });
         });
@@ -327,7 +401,7 @@ $(&quot;#demo0&quot;).vacuumGantt({
     </div>
     <hr/>
 
-    <h3>2. Event/Interval collision example</h3>
+    <h3>Event/Interval collision</h3>
 <pre class="prettyprint linenums:1 lang-js small">
 var demo1Data = [
 {
@@ -406,7 +480,7 @@ $(&quot;#demo1&quot;).vacuumGantt({
     </div>
     <hr/>
 
-    <h3>3. 24 hour timeline example</h3>
+    <h3>24 hour timeline</h3>
     <div class="row">
         <div class="col-lg-12">
 <pre class="prettyprint linenums:1 lang-js small">
@@ -471,6 +545,88 @@ $(&quot;#demo2&quot;).vacuumGantt({
         <div class="col-lg-12">
             <!-- VacuumGantt placeholder -->
             <div id="demo2"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <h3>Event/Interval tooltips (qTip)</h3>
+    <div class="row">
+        <div class="col-lg-12">
+<pre class="prettyprint linenums:1 lang-js small">
+&lt;style type=&quot;text/css&quot;&gt;
+    .customTooltip {
+        background: #C1E5AC;
+        border: 1px solid #006301;
+    }
+&lt;/style&gt;
+
+var demo3Data = [
+    {
+        &quot;id&quot;: &quot;#lane1&quot;,
+        &quot;description&quot;: &quot;Lane 1&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;date&quot;: &quot;2013/02/15&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 1&quot;,
+                &quot;tooltip&quot;: &quot;Additional info for Event 1&quot;
+            },
+            {
+                &quot;date&quot;: &quot;2013/02/25&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 2&quot;,
+                &quot;tooltip&quot;: &quot;Additional info for Event 2&quot;
+            }
+        ]
+    },
+    {
+        &quot;id&quot;: &quot;#lane2&quot;,
+        &quot;description&quot;: &quot;Lane 2&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;startDate&quot;: &quot;2013/02/20&quot;,
+                &quot;endDate&quot;: &quot;2013/04/15&quot;,
+                &quot;progressDate&quot;: &quot;2013/04/15&quot;,
+                &quot;classes&quot;: [&quot;green&quot;],
+                &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+                &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+                &quot;label&quot;: &quot;Interval 1&quot;,
+                &quot;tooltip&quot;: {
+                    &quot;content&quot;: &quot;&lt;strong&gt;Interval 1&lt;/strong&gt; tooltip with custom style&quot;,
+                    &quot;classes&quot;: &quot;customTooltip&quot;
+                }
+            }
+        ]
+    }
+]
+
+$(&quot;#demo3&quot;).vacuumGantt({
+    data: demo3Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/02/10',
+            endDate: '2013/04/30'
+        },
+        viewport: {
+            width: 30 * 24 * 60 * 60 * 1000
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            color: 'gray',
+            timelines: [{
+                resolution: 1000 * 60 * 60 * 24,
+                dateFormat: 'DD'
+            }]
+        }
+    }
+});
+</pre>
+        </div>
+    </div>
+    <div class="row no-space">
+        <div class="col-lg-12">
+            <!-- VacuumGantt placeholder -->
+            <div id="demo3"></div>
         </div>
     </div>
     <hr/>

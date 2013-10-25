@@ -24,7 +24,7 @@
     <!-- VacuumGantt JS -->
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
-    <script type="text/javascript" src="js/vacuumgantt-1.0.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.1.min.js"></script>
     <script type="text/javascript" src="js/demo-data.js"></script>
 
     <!-- Code highlighter JS -->
@@ -38,33 +38,6 @@
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>
     <![endif]-->
-
-    <script type="text/javascript">
-        // on ready
-        $(function () {
-            // create vacuumGantt
-            $("#demo").vacuumGantt({
-                data: testData,
-                settings: {
-                    boundaries: {
-//                    startDate : '2013/06/31',
-//                    endDate : '2013/10/01'
-                    },
-                    viewport: {
-                        width: 2629743830, // 1 month in miliseconds
-                        position: null
-                    },
-                    laneHeight: "30px"
-                },
-                onLaneClick: function (lane) {
-                    alert('Klikol si na lane s ID: ' + lane.id);
-                },
-                onError: function (data) {
-                    console.log(data);
-                }
-            });
-        });
-    </script>
 </head>
 
 <body onload="prettyPrint()">
@@ -84,13 +57,13 @@
                 <li><a href="index.html">Home</a></li>
                 <li class="active"><a href="documentation.html">Documentation</a></li>
                 <li><a href="examples.html">Examples</a></li>
-                <li><a href="vacuumgantt-1.0.zip">Download</a></li>
+                <li><a href="vacuumgantt-1.1.zip">Download</a></li>
             </ul>
         </div>
     </div>
     <div class="row">
         <div class="col-lg-12">
-            <h3>Configuration format</h3>
+            <h3>Config</h3>
             <pre class="prettyprint linenums lang-js">
 /* data consists of an array of lane objects.*/
 data:{
@@ -136,7 +109,18 @@ data:{
           unfinishedColor: &quot;#ffffff&quot;,
 
           /* Optional text to display inside interval */
-          label: &quot;Prozac&quot;
+          label: &quot;Prozac&quot;,
+
+          /* Optional tooltip.
+            [default tooltip]
+                tooltip: &quot;hello world&quot;
+            [custom tooltip]
+                tooltip: {
+                    content: &quot;hello world&quot;
+                    classes: &quot;mycustomclass&quot;
+                }
+          */
+          tooltip: &quot;additional details&quot;
         },
 
         /* Example one time event definition */
@@ -151,7 +135,18 @@ data:{
           icon: &quot;/path/to&quot;,
 
           /* Optional text to display on the right side of the event */
-          label: &quot;EEG&quot;
+          label: &quot;EEG&quot;,
+
+          /* Optional tooltip.
+            [default tooltip]
+                tooltip: &quot;hello world&quot;
+            [custom tooltip]
+                tooltip: {
+                    content: &quot;hello world&quot;
+                    classes: &quot;mycustomclass&quot;
+                }
+          */
+          tooltip: &quot;additional details&quot;
         }
       ]
     },

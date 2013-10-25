@@ -1,8 +1,9 @@
 /*!
  * jQuery VacuumGantt
- * Version: 1.0
+ * Version: 1.1
  * Vacuumlabs @ 2013
  */
+
 
 ;
 (function ($, window, undefined) {
@@ -102,7 +103,7 @@
 
             if (gradientId != "") {
                 return gradientId;
-            };
+            }
 
             // create gradient
             gradientId = 'gradient' + self.svg.gradients.length;
@@ -155,10 +156,73 @@
             }
             return retval;
         };
+        this.attachTooltip = function (elem, tooltip) {
+            var defaultTooltip = {
+                position: {
+                    my: 'top center',
+                    at: 'bottom center',
+                    adjust: {
+                        mouse: false
+                    }
+                },
+                style: {
+                },
+                content: {
+                    text: ""
+                },
+                events: {
+                    show: function (event, api) {
+                        // tooltip (x,y) position = [mouseX, itemBottom]
+                        var itemTop = Math.floor($(elem).offset().top),
+                            itemBot = itemTop + parseInt(self.labels.laneHeight) - self.svg.rectMargin * 2;
+                        // set tooltip position
+                        api.options.position.target = [api.mouse.pageX, itemBot];
+                    }
+                },
+                show: {
+                    event: 'click mouseenter',
+                    solo: true
+                },
+                hide: {
+                    event: 'unfocus mouseleave'
+                }
+
+            };
+
+            // if tooltip = "some string"
+            if (typeof tooltip === "string") {
+                defaultTooltip.content.text = tooltip;
+                // else if tooltip = { content: "some string", classes "someClass" }
+            } else if (typeof tooltip === "object") {
+                if (typeof tooltip.content === "string") {
+                    defaultTooltip.content.text = tooltip.content;
+                }
+                if (typeof tooltip.classes === "string") {
+                    defaultTooltip.style.classes = tooltip.classes;
+                }
+                // else skip tooltip
+            } else {
+                return false;
+            }
+
+            // check if plugin exists
+            if (typeof jQuery.fn.qtip === "undefined") {
+                self.errorMsg(
+                    'ERR_NO_PLUGIN',
+                    {
+                        name: "qtip"
+                    });
+            }
+
+            // create qtip
+            $(elem).qtip(
+                defaultTooltip
+            );
+        };
         this.errorMsg = function (code, targetObject) {
             if (typeof this.errorCallback !== "function") {
                 return false;
-            };
+            }
 
             var errorMsg = {};
             [
@@ -187,7 +251,7 @@
                     if (error.code == code) {
                         errorMsg = jQuery.extend({}, error);
                         return false;
-                    };
+                    }
                 });
 
             this.errorCallback(code, jQuery.extend({}, targetObject));
@@ -531,12 +595,12 @@
                         self.items[i].startDate <= self.items[j].endDate) ||
                         (self.items[i].endDate >= self.items[j].startDate &&
                             self.items[i].endDate <= self.items[j].startDate)) {
-                    self.graphics.errorMsg(
-                        'ERR_INTERVAL_COLLISION',
-                        {
-                            interval1: self.items[i].data,
-                            interval2: self.items[j].data
-                        });
+                        self.graphics.errorMsg(
+                            'ERR_INTERVAL_COLLISION',
+                            {
+                                interval1: self.items[i].data,
+                                interval2: self.items[j].data
+                            });
                     }
                 }
             }
@@ -640,10 +704,16 @@
             if (typeof self.data.icon === "string" && self.data.icon != "") {
                 var intervalIcon = $('<img />', {
                     src: self.data.icon,
-                    class: 'intervalIcon'
+                    "class": "intervalIcon"
                 });
                 self.intervalText.prepend(intervalIcon);
             }
+
+            //tooltip
+            self.graphics.attachTooltip(
+                self.intervalText,
+                self.data.tooltip
+            );
 
             self.graphics.svg.wrapper.append(self.intervalText);
 
@@ -762,10 +832,16 @@
             if (typeof self.data.icon === "string" && self.data.icon != "") {
                 var eventIcon = $('<img />', {
                     src: self.data.icon,
-                    class: 'eventIcon'
+                    "class": "eventIcon"
                 });
                 self.eventText.prepend(eventIcon);
             }
+
+            //tooltip
+            self.graphics.attachTooltip(
+                self.eventText,
+                self.data.tooltip
+            );
 
             self.graphics.svg.wrapper.append(self.eventText);
         },
