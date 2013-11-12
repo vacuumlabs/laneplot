@@ -33,7 +33,7 @@ var testData = [
                 "label": "X.100"
             },
             {
-                "date": "2013/08/08",
+                "date": "2013/08/08 10:00",
                 "classes": [],
                 "icon": "icons/dot.png",
                 "label": "Vyšetrenie A"
@@ -45,11 +45,11 @@ var testData = [
                 "label": "Vyšetrenie B"
             },
             {
-                "date": "2013/08/09",
+                "date": "2013/08/09 02:00",
                 "classes": [],
                 "icon": "icons/dot.png",
                 "label": "Vyšetrenie C",
-                "tooltip" : "<strong>Vyšetrenie C</strong> extra info"
+                "tooltip" : "<strong>Vyšetrenie C</strong> extra info "
             }
         ]
     },

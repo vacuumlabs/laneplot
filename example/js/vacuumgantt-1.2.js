@@ -563,8 +563,8 @@
                     .call(adjustTextLabels)
 
                 // remove fist and last tick line
-//                xAxisGroup.select('g').remove();
-                d3.select(xAxisGroup.selectAll('g')[0].pop()).remove();
+                xAxisGroup.select('g').attr('style','opacity:0;');
+                d3.select(xAxisGroup.selectAll('g')[0].pop()).attr('style','opacity:0;');
 
                 // move axis path: top -> bottom
                 xAxisGroup.select("path").remove()
@@ -710,26 +710,44 @@
             }
 
             // find event groups
-            var groups = [];
-            var widthThreshold = 0;
-//            var iconThreshold = parseInt(self.graphics.labels.laneHeight);
+            var groups = [],
+                groupOffset = 4,
+                widthThreshold = 0,
+                iconSize = parseInt(self.graphics.labels.laneHeight) - 2 * self.graphics.svg.rectMargin - 1,
+                iconThreshold = 0;
             for (var i = 0; i < self.items.length; i++) {
-                //skip intervals
+                // skip intervals
                 if (self.items[i].type == "interval") {
+                    // event-interval
+                    // 13px workaround = intervalText-padding-left + icon-padding-right
+                    if (self.items[i].getPosX() < widthThreshold + 13
+                        && i - 1 >= 0
+                        && self.items[i - 1].type == "event") {
+                        self.items[i - 1].hideTitle();
+                    }
                     widthThreshold = 0;
                     continue;
                 }
                 // first event init threshold
-                if (widthThreshold == 0) {
+                if (iconThreshold == 0) {
                     // create first group
                     widthThreshold = self.items[i].getPosX() + self.items[i].getWidth();
+                    iconThreshold = self.items[i].getPosX() + iconSize;
                     groups.push([self.items[i]]);
-                } else if (self.items[i].getPosX() < widthThreshold) {
+                } else if (self.items[i].getPosX() < iconThreshold) {
                     // append to last group
                     groups[groups.length - 1].push(self.items[i]);
-                    widthThreshold = (groups[groups.length - 1].length - 1) * 5 + self.items[i].getPosX() + self.items[i].getWidth();
+                    widthThreshold = (groups[groups.length - 1].length - 1) * groupOffset + self.items[i].getPosX() + self.items[i].getWidth();
+                    iconThreshold = (groups[groups.length - 1].length - 1) * groupOffset + self.items[i].getPosX() + iconSize;
                 } else {
+                    // 5px = icon-padding-right
+                    if (self.items[i].getPosX() < widthThreshold + 5
+                        && i - 1 >= 0
+                        && self.items[i - 1].type == "event") {
+                        self.items[i - 1].hideTitle();
+                    }
                     widthThreshold = self.items[i].getPosX() + self.items[i].getWidth();
+                    iconThreshold = self.items[i].getPosX() + iconSize;
                     groups.push([self.items[i]]);
                 }
             }
@@ -745,7 +763,6 @@
                 }
                 // render groups
                 var groupPosX = items[0].getPosX(),
-                    groupOffset = 4,
                     groupWidth = (items.length - 1) * groupOffset + items[items.length - 1].getWidth(),
                     nestedTooltips = [],
                     groupTooltip = $('<table/>', {
@@ -1093,7 +1110,7 @@
                 .css('top', textY.toFixed(2) + 'px')
                 .css('height', textHeight)
                 .css('line-height', textHeight + 'px')
-                .css('width','');
+                .css('width', '');
             var icon = self.eventText.children('.eventIcon')
                 .css('max-height', textHeight);
             // icon vertical center fix
@@ -1112,7 +1129,7 @@
             });
         },
         getWidth: function () {
-            return this.eventText.width() + parseInt(this.graphics.labels.laneHeight);
+            return this.eventText.width() + parseInt(this.graphics.labels.laneHeight) - 2 * this.graphics.svg.rectMargin - 1;
         },
         getHeight: function () {
             return this.eventText.height();
@@ -1158,6 +1175,13 @@
                 '<td>' + self.data.label + '</td>'
             )
             return tooltip;
+        },
+        hideTitle: function () {
+            if (this.eventText.children('img').is('*')) {
+                var newWidth = parseInt(this.graphics.labels.laneHeight) - 2 * this.graphics.svg.rectMargin - 1;
+                this.eventText.css('width', newWidth);
+                this.eventText.css('overflow', 'hidden');
+            }
         }
     };
 
