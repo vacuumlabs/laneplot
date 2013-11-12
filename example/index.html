@@ -15,6 +15,7 @@
 
     <!-- VacuumGantt CSS -->
     <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/jquery.qtip.min.css" type="text/css" media="screen"/>
     <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
 
 
@@ -22,7 +23,8 @@
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
     <script type="text/javascript" src="js/moment.min.js"></script>
-    <script type="text/javascript" src="js/vacuumgantt-1.1.min.js"></script>
+    <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.2.min.js"></script>
     <script type="text/javascript" src="js/demo-data.js"></script>
 
     <!-- Bootstrap JS -->
@@ -47,20 +49,28 @@
                         width: 1000 * 60 * 60 * 24 * 30, // 1 month
                         position: 0
                     },
+                    intervalThreshold: 1000 * 60 * 60 * 24,
+                    eventsGroupClasses: "whiteTooltip",
                     labelsWidth: "130px",
                     laneHeight: "30px",
                     grid: {
-                        color: "gray",
+                        color: "#BABABA",
                         timelines: [
                             {
                                 resolution: 1000 * 60 * 60 * 24, // 1 day
-                                dateFormat: 'DD'
+                                dateFormat: 'DD',
+                                classes: "asdas"
+                            },
+                            {
+                                resolution: 1000 * 60 * 60 * 24 * 30 * 12, // 1 month
+                                dateFormat: 'YYYY'
                             }
                         ]
                     }
                 },
                 onLaneClick: function (lane) {
-                    alert('Klikol si na lane s ID: ' + lane.id);
+                    $('.clickmsg').html('<span>You have clicked on lane wit ID: ' +lane.id + '</span>');
+                    $('.clickmsg').children('span').css('opacity','0').fadeTo( "slow" , 1);
                 },
                 onError: function (erroObj, targetObj) {
                     console.log(erroObj, targetObj);
@@ -87,7 +97,7 @@
                 <li class="active"><a href="index.html">Home</a></li>
                 <li><a href="documentation.html">Documentation</a></li>
                 <li><a href="examples.html">Examples</a></li>
-                <li><a href="vacuumgantt-1.1.zip">Download</a></li>
+                <li><a href="vacuumgantt-1.2.zip">Download</a></li>
             </ul>
         </div>
     </div>
@@ -95,6 +105,9 @@
         <div class="col-lg-12">
             <!-- VacuumGantt placeholder -->
             <div id="demo"></div>
+        </div>
+        <div class="col-lg-12 clickmsg" style="text-align: center">
+            &nbsp;
         </div>
     </div>
     <div class="row marketing">

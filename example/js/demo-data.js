@@ -9,16 +9,16 @@ var testData = [
         "icon": "icons/hosp.png",
         "items": [
             {
-                "date": "2013/07/31",
-                "classes": [],
-                "icon": "icons/camera.png",
-                "label": "EEG"
-            },
-            {
                 "date": "2013/08/20",
                 "classes": [],
                 "icon": "icons/camera.png",
                 "label": "CT Hlavy"
+            },
+            {
+                "date": "2013/07/31",
+                "classes": [],
+                "icon": "icons/camera.png",
+                "label": "EEG"
             }
         ]
     },
@@ -29,14 +29,27 @@ var testData = [
             {
                 "date": "2013/08/02",
                 "classes": [],
-                "icon": "icons/note.png",
+                "icon": "icons/dot.png",
                 "label": "X.100"
             },
             {
-                "date": "2013/09/10",
+                "date": "2013/08/08",
                 "classes": [],
-                "icon": "icons/note.png",
-                "label": "P279a"
+                "icon": "icons/dot.png",
+                "label": "Vyšetrenie A"
+            },
+            {
+                "date": "2013/08/15",
+                "classes": [],
+                "icon": "icons/dot.png",
+                "label": "Vyšetrenie B"
+            },
+            {
+                "date": "2013/08/09",
+                "classes": [],
+                "icon": "icons/dot.png",
+                "label": "Vyšetrenie C",
+                "tooltip" : "<strong>Vyšetrenie C</strong> extra info"
             }
         ]
     },
@@ -45,13 +58,24 @@ var testData = [
         "description": "Lieky (typ <strong>A1</strong>)",
         "items": [
             {
+                "startDate": "2013/08/06 10:00",
+                "endDate": "2013/08/06 18:00",
+                "progressDate": "2013/08/06 18:00",
+                "progressColor": "#F18200",
+                "unfinishedColor": "#D4D4D4",
+                "label": "Small Interval",
+                "icon": "icons/dot.png",
+                "cornerRadius": 10
+            },
+            {
                 "startDate": "2013/08/28",
                 "endDate": "2013/10/01",
                 "progressDate": "2013/09/24",
                 "classes": ["red"],
-                "progressColor": ["#BF2101", "#FF2E00"],
-                "unfinishedColor": ["#4C4C4C","#7D7D7D"],
-                "label": "LOMAC, cps 14x20 mg"
+                "progressColor": "#F18200",
+                "unfinishedColor": "#D4D4D4",
+                "label": "LOMAC, cps 14x20 mg",
+                "cornerRadius": 10
             }
         ]
     },
@@ -65,9 +89,10 @@ var testData = [
                 "endDate": "2013/10/01",
                 "progressDate": "2013/09/24",
                 "classes": ["red"],
-                "progressColor": ["#BF2101", "#FF2E00"],
-                "unfinishedColor": ["#4C4C4C","#7D7D7D"],
-                "label": "LOMAC, cps 14x20 mg"
+                "progressColor": "#F18200",
+                "unfinishedColor": "#D4D4D4",
+                "label": "LOMAC, cps 14x20 mg",
+                "cornerRadius": 10
             }
         ]
     },
@@ -80,9 +105,10 @@ var testData = [
                 "endDate": "2013/08/28",
                 "progressDate": "2013/08/28",
                 "classes": ["green"],
-                "progressColor": ['#0A7610','#00AF06'],
+                "progressColor": "#8CB302",
                 "icon": "icons/folder.png",
-                "label": "TARKA 240 mg/2 mg tablety"
+                "label": "TARKA 240 mg/2 mg tablety",
+                "cornerRadius": 10
             }
         ]
     },
@@ -95,8 +121,9 @@ var testData = [
                 "endDate": "2013/09/05",
                 "progressDate": "2013/09/05",
                 "classes": ["green"],
-                "progressColor": ['#0A7610','#00AF06'],
-                "label": "Penbene, tbl flm 30x1 MU"
+                "progressColor": "#8CB302",
+                "label": "Penbene, tbl flm 30x1 MU",
+                "cornerRadius": 10
             }
         ]
     }

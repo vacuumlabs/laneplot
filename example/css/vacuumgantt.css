@@ -7,6 +7,7 @@
     padding: 0;
     color: #000;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: relative;
 }
 
 .vacuumGantt * {
@@ -25,6 +26,7 @@
 .vacuumGantt > .leftCol {
     float: left;
     margin-left: -100%;
+    border-top: 1px solid #BABABA;
 }
 
 .vacuumGantt > .leftCol div.lane-label {
@@ -33,7 +35,8 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    border-left: 1px solid #E5E5E5;
+    border-left: 1px solid #BABABA;
+    border-bottom: 1px solid #BABABA;
     position: relative;
     display: block;
 }
@@ -46,13 +49,16 @@
     margin: auto;
 }
 
-
-.vacuumGantt > .leftCol div.lane-label:last-child {
-    border-bottom: 1px solid #E5E5E5;
+.vacuumGantt .oddLane {
+    background: white;
+}
+.vacuumGantt .evenLane {
+    background: #EEEEEE;
 }
 
-.vacuumGantt > .leftCol div:nth-child(odd) {
-    background: #EEEEEE;
+.vacuumGantt .axisSwitch {
+    border-left: 1px solid #BABABA;
+    border-bottom: 1px solid #BABABA;
 }
 
 /*
@@ -61,14 +67,16 @@
 .vacuumGantt > .rightCol {
     float: left;
     width: 100%;
+    border-top: 1px solid #BABABA;
 }
 
 .vacuumGantt > .rightCol .svgWrapper {
     overflow-x: scroll;
     overflow-y: hidden;
-    border: 1px solid #E5E5E5;
     outline: none;
     position: relative;
+    border-left: 1px solid #BABABA;
+    border-right: 1px solid #BABABA;
 }
 
 .vacuumGantt > .rightCol .svgWrapper::-webkit-scrollbar {
@@ -93,30 +101,33 @@
     z-index: 0;
 }
 
-.vacuumGantt > .rightCol .yaxis path {
-    fill: none;
-    stroke: #7D7F7E;
-    shape-rendering: crispEdges;
-    stroke-dasharray: 2, 2;
+.vacuumGantt > .rightCol .yaxis {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
 }
 
-.vacuumGantt > .rightCol .xaxis text {
-    font: 10px Arial;
-    fill: #7D7F7E;
-    font-weight: bold;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
+/*.vacuumGantt > .rightCol .xaxis text {*/
+    /*font: 10px Arial;*/
+    /*fill: #7D7F7E;*/
+    /*font-weight: bold;*/
+    /*font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;*/
+/*}*/
 
 .vacuumGantt > .rightCol .xaxis line,
-.vacuumGantt > .rightCol .yaxis path,
 .vacuumGantt > .rightCol .xaxis path {
     fill: none;
-    stroke: #7D7F7E;
+    stroke: #D6D6D6;
     shape-rendering: crispEdges;
+}
+
+.vacuumGantt > .rightCol .xaxis div {
+    text-align: center;
 }
 
 .vacuumGantt > .rightCol .xaxis line {
-    stroke-dasharray: 2, 2;
+    stroke-dasharray: 0;
 }
 
 .vacuumGantt > .rightCol .xaxis line.solid {
@@ -142,13 +153,17 @@
 }
 
 .vacuumGantt > .rightCol .eventText {
-    background: rgba(255,255,255,1);
+    background: rgba(255,255,255,0);
     z-index: 2;
 }
 
 .vacuumGantt > .rightCol .intervalText {
     background: rgba(255,255,255,0);
     z-index: 1;
+}
+
+.vacuumGantt > .rightCol .eventsGroup {
+    background: rgba(255,255,255,0);
 }
 
 .vacuumGantt > .rightCol .toFront {

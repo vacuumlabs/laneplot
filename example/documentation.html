@@ -24,7 +24,7 @@
     <!-- VacuumGantt JS -->
     <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
     <script type="text/javascript" src="js/d3.js"></script>
-    <script type="text/javascript" src="js/vacuumgantt-1.1.min.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.2.min.js"></script>
     <script type="text/javascript" src="js/demo-data.js"></script>
 
     <!-- Code highlighter JS -->
@@ -98,6 +98,12 @@ data:{
           /* Optional event icon */
           icon: &quot;/path/to&quot;,
 
+          /* Optional. Sets radius of interval corners. (Default: 10) */
+          cornerRadius: 10,
+
+          /* Optional. Interval progress has drawn the arrow at the end. (Default: false) */
+          arrow: false,
+
           /* Optional. Progress color (simple color = '#dedede',
             gradient color = ['#dedede', '#ffffff'])
             */
@@ -106,7 +112,7 @@ data:{
           /* Optional. Unfinished color (simple color = '#dedede',
             gradient color = ['#dedede', '#ffffff'])
           */
-          unfinishedColor: &quot;#ffffff&quot;,
+          unfinishedColor: &quot;#D4D4D4&quot;,
 
           /* Optional text to display inside interval */
           label: &quot;Prozac&quot;,
@@ -164,6 +170,17 @@ data:{
         endDate: &quot;date-string&quot;
       },
 
+      /*
+        Optional parameter, default values is 0 (no threshold).
+        If interval < threshold than interval is display as one-time event.
+       */
+      intervalThreshold: 1000 * 60 * 60 * 24,
+
+      /*
+        Optional parameter. Sets class for tooltip of grouped events.
+       */
+      eventsGroupClasses: "customClass",
+
       viewport: {
         /* Width in miliseconds */
         width: 1000 * 60 * 60 * 24 * 30,
@@ -172,7 +189,7 @@ data:{
       },
 
       grid: {
-         /* Optional parameter, default value is #000000. Sets the color of the grid lines. */
+        /* Optional parameter, default value is #000000. Sets the color of the grid lines. */
          color: &quot;#000000&quot;,
         /*
          *  Sets timelines at X axis of the grid
@@ -186,6 +203,8 @@ data:{
                 resolution: 1000 * 60 * 60 * 24 /* 1 day */,
                 /*Sets date format of timeline */
                 dateFormat: &quot;MM-DD&quot;
+                /*Optional. CSS classes of timeline */
+                classes: &quot;customClass&quot;
             }
         ]
        }
