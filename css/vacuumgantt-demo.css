@@ -1,0 +1,14 @@
+
+.greenLabel {
+    color: #2F7A28;
+    font-weight: bold;
+}
+
+.red, .green{
+    font-weight: bold;
+    color: white;
+}
+
+.whiteTooltip {
+    background: white;
+}

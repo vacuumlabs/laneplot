@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="jQuery VacuumGantt plugin">
+    <meta name="author" content="Vacuumapps">
+
+    <title>jQuery VacuumGantt plugin</title>
+
+    <!-- Bootstrap template CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/jumbotron-narrow.css" rel="stylesheet"/>
+
+    <!-- Code highlighter CSS -->
+    <link href="css/prettify.css" rel="stylesheet"/>
+
+    <!-- VacuumGantt CSS -->
+    <link rel="stylesheet" href="css/vacuumgantt.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/jquery.qtip.min.css" type="text/css" media="screen"/>
+    <link rel="stylesheet" href="css/vacuumgantt-demo.css" type="text/css" media="screen"/>
+
+    <!-- VacuumGantt JS -->
+    <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
+    <script type="text/javascript" src="js/d3.js"></script>
+    <script type="text/javascript" src="js/moment.min.js"></script>
+    <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+    <script type="text/javascript" src="js/vacuumgantt-1.2.js"></script>
+
+    <!-- Code highlighter JS -->
+    <script type="text/javascript" src="js/prettify.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+
+    <style type="text/css">
+        .customTooltip {
+            background: #C1E5AC;
+            border: 1px solid #006301;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body onload="prettyPrint()">
+
+<div class="container">
+    <div class="navbar navbar-default">
+        <div class="navbar-header">
+            <button data-target=".navbar-collapse" data-toggle="collapse" class="navbar-toggle" type="button">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="index.html" class="navbar-brand">jQuery VacuumGantt</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="documentation.html">Documentation</a></li>
+                <li class="active"><a href="examples.html">Examples</a></li>
+                <li><a href="vacuumgantt-1.2.zip">Download</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // on ready
+        $(function () {
+            var demo0Data = [
+                {
+                    "id": "#lane1",
+                    "description": "Lane 1",
+                    "items": [
+                        {
+                            "date": "2013/02/25",
+                            "classes": [],
+                            "label": "Event label 1"
+                        },
+                        {
+                            "date": "2013/05/03",
+                            "classes": [],
+                            "label": "Event label 2"
+                        }
+                    ]
+                },
+                {
+                    "id": "#lane2",
+                    "description": "Lane 2",
+                    "items": [
+                        {
+                            "startDate": "2013/02/14",
+                            "endDate": "2013/03/10",
+                            "progressDate": "2013/03/10",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 1"
+                        },
+                        {
+                            "startDate": "2013/04/11",
+                            "endDate": "2013/06/02",
+                            "progressDate": "2013/05/02",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 2"
+                        }
+                    ]
+                }
+            ]
+
+            $("#demo0").vacuumGantt({
+                data: demo0Data,
+                settings: {
+                    boundaries: {
+                        startDate: '2013/02/12',
+                        endDate: '2013/06/10'
+                    },
+                    viewport: {
+                        width: 30 * 24 * 60 * 60 * 1000
+                    },
+                    laneHeight: "30px",
+                    grid: {
+                        timelines: [{
+                            resolution: 1000 * 60 * 60 * 24,
+                            dateFormat: 'DD'
+                        }]
+                    }
+                }
+            });
+
+            var demo1Data = [
+                {
+                    "id": "#lane1",
+                    "description": "Lane 1",
+                    "items": [
+                        {
+                            "date": "2013/06/02",
+                            "classes": [],
+                            "label": "Event label 1"
+                        },
+                        {
+                            "date": "2013/06/03",
+                            "classes": [],
+                            "label": "Event label 2"
+                        },
+                        {
+                            "date": "2013/07/02",
+                            "classes": [],
+                            "label": "Event label 3"
+                        },
+                        {
+                            "date": "2013/07/02",
+                            "classes": [],
+                            "label": "Event label 4"
+                        },
+                        {
+                            "date": "2013/06/30",
+                            "classes": [],
+                            "label": "Event label 5"
+                        }
+                    ]
+                },
+                {
+                    "id": "#lane2",
+                    "description": "Lane 2",
+                    "items": [
+                        {
+                            "startDate": "2013/06/05",
+                            "endDate": "2013/07/05",
+                            "progressDate": "2013/07/05",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 1"
+                        }
+                    ]
+                }
+            ]
+
+            $("#demo1").vacuumGantt({
+                data: demo1Data,
+                settings: {
+                    boundaries: {
+                        startDate: '2013/05/31',
+                        endDate: '2013/07/31'
+                    },
+                    viewport: {
+                        width: 30 * 24 * 60 * 60 * 1000
+                    },
+                    laneHeight: "30px",
+                    grid: {
+                        timelines: [{
+                            resolution: 1000 * 60 * 60 * 24,
+                            dateFormat: 'DD'
+                        }]
+                    }
+                }
+            });
+
+            var demo2Data = [
+                {
+                    "id": "#lane1",
+                    "description": "Lane 1",
+                    "items": [
+                        {
+                            "date": "2013/05/30 04:00",
+                            "classes": [],
+                            "label": "Event 1"
+                        },
+                        {
+                            "date": "2013/05/30 17:00",
+                            "classes": [],
+                            "label": "Event 2"
+                        }
+                    ]
+                },
+                {
+                    "id": "#lane2",
+                    "description": "Lane 2",
+                    "items": [
+                        {
+                            "startDate": "2013/05/30 06:00",
+                            "endDate": "2013/05/30 22:00",
+                            "progressDate": "2013/05/30 18:00",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 1"
+                        }
+                    ]
+                }
+            ]
+
+            $("#demo2").vacuumGantt({
+                data: demo2Data,
+                settings: {
+                    boundaries: {
+                        startDate: '2013/05/30 00:00',
+                        endDate: '2013/05/30 23:59'
+                    },
+                    viewport: {
+                        width: 1000 * 60 * 60 * 12
+                    },
+                    laneHeight: "30px",
+                    grid: {
+                        color: '#428BCA',
+                        timelines: [{
+                            resolution: 1000 * 60 * 60,
+                            dateFormat: 'HH:mm'
+                        }]
+                    }
+                }
+            });
+
+
+            var demo3Data = [
+                {
+                    "id": "#lane1",
+                    "description": "Lane 1",
+                    "items": [
+                        {
+                            "date": "2013/02/15",
+                            "classes": [],
+                            "label": "Event 1",
+                            "tooltip": "Additional info for Event 1"
+                        },
+                        {
+                            "date": "2013/02/25",
+                            "classes": [],
+                            "label": "Event 2",
+                            "tooltip": "Additional info for Event 2"
+                        }
+                    ]
+                },
+                {
+                    "id": "#lane2",
+                    "description": "Lane 2",
+                    "items": [
+                        {
+                            "startDate": "2013/02/20",
+                            "endDate": "2013/04/15",
+                            "progressDate": "2013/04/15",
+                            "classes": ["green"],
+                            "progressColor": ['#0A7610', '#00AF06'],
+                            "unfinishedColor": ["#4C4C4C", "#7D7D7D"],
+                            "label": "Interval 1",
+                            "tooltip": {
+                                "content": "<strong>Interval 1</strong> tooltip with custom style",
+                                "classes": "customTooltip"
+                            }
+                        }
+                    ]
+                }
+            ]
+
+            $("#demo3").vacuumGantt({
+                data: demo3Data,
+                settings: {
+                    boundaries: {
+                        startDate: '2013/02/10',
+                        endDate: '2013/04/30'
+                    },
+                    viewport: {
+                        width: 30 * 24 * 60 * 60 * 1000
+                    },
+                    laneHeight: "30px",
+                    grid: {
+                        color: 'gray',
+                        timelines: [{
+                            resolution: 1000 * 60 * 60 * 24,
+                            dateFormat: 'DD'
+                        }]
+                    }
+                },
+                onError: function(e){
+                    console.log(e);
+                }
+            });
+        });
+    </script>
+
+
+<pre class="prettyprint linenums:1 lang-js small">
+var demo0Data = [
+{
+    &quot;id&quot;: &quot;#lane1&quot;,
+    &quot;description&quot;: &quot;Lane 1&quot;,
+    &quot;items&quot;: [
+        {
+            &quot;date&quot;: &quot;2013/02/25&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 1&quot;
+        },
+        {
+            &quot;date&quot;: &quot;2013/05/03&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 2&quot;
+        }
+    ]
+},
+{
+    &quot;id&quot;: &quot;#lane2&quot;,
+    &quot;description&quot;: &quot;Lane 2&quot;,
+    &quot;items&quot;: [
+        {
+            &quot;startDate&quot;: &quot;2013/02/14&quot;,
+            &quot;endDate&quot;: &quot;2013/03/10&quot;,
+            &quot;progressDate&quot;: &quot;2013/03/10&quot;,
+            &quot;classes&quot;: [&quot;green&quot;],
+            &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+            &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+            &quot;label&quot;: &quot;Interval 1&quot;
+        },
+        {
+            &quot;startDate&quot;: &quot;2013/04/11&quot;,
+            &quot;endDate&quot;: &quot;2013/06/02&quot;,
+            &quot;progressDate&quot;: &quot;2013/05/02&quot;,
+            &quot;classes&quot;: [&quot;green&quot;],
+            &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+            &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+            &quot;label&quot;: &quot;Interval 2&quot;
+        }
+    ]
+}
+]
+
+$(&quot;#demo0&quot;).vacuumGantt({
+    data: demo0Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/02/12',
+            endDate: '2013/06/10'
+        },
+        viewport: {
+            width: 30 * 24 * 60 * 60 * 1000
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            timelines: [{
+                resolution: 1000 * 60 * 60 * 24,
+                dateFormat: 'DD'
+            }]
+        }
+    }
+});
+</pre>
+    <div class="row no-space">
+        <div class="col-lg-12">
+            <!-- VacuumGantt placeholder -->
+            <div id="demo0"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <h3>Event/Interval collision</h3>
+<pre class="prettyprint linenums:1 lang-js small">
+var demo1Data = [
+{
+    &quot;id&quot;: &quot;#lane1&quot;,
+    &quot;description&quot;: &quot;Lane 1&quot;,
+    &quot;items&quot;: [
+        {
+            &quot;date&quot;: &quot;2013/06/02&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 1&quot;
+        },
+        {
+            &quot;date&quot;: &quot;2013/06/03&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 2&quot;
+        },
+        {
+            &quot;date&quot;: &quot;2013/07/02&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 3&quot;
+        },
+        {
+            &quot;date&quot;: &quot;2013/07/02&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 4&quot;
+        },
+        {
+            &quot;date&quot;: &quot;2013/06/30&quot;,
+            &quot;classes&quot;: [],
+            &quot;label&quot;: &quot;Event label 5&quot;
+        }
+    ]
+},
+{
+    &quot;id&quot;: &quot;#lane2&quot;,
+    &quot;description&quot;: &quot;Lane 2&quot;,
+    &quot;items&quot;: [
+        {
+            &quot;startDate&quot;: &quot;2013/06/05&quot;,
+            &quot;endDate&quot;: &quot;2013/07/05&quot;,
+            &quot;progressDate&quot;: &quot;2013/07/05&quot;,
+            &quot;classes&quot;: [&quot;green&quot;],
+            &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+            &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+            &quot;label&quot;: &quot;Interval 1&quot;
+        }
+    ]
+}
+]
+
+$(&quot;#demo1&quot;).vacuumGantt({
+    data: demo1Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/05/31',
+            endDate: '2013/07/31'
+        },
+        viewport: {
+            width: 30 * 24 * 60 * 60 * 1000,
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            timelines: [{
+                resolution: 1000 * 60 * 60 * 24,
+                dateFormat: 'DD'
+            }]
+        }
+    }
+});
+</pre>
+    <div class="row no-space">
+        <div class="col-lg-12">
+            <!-- VacuumGantt placeholder -->
+            <div id="demo1"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <h3>24 hour timeline</h3>
+    <div class="row">
+        <div class="col-lg-12">
+<pre class="prettyprint linenums:1 lang-js small">
+var demo2Data = [
+    {
+        &quot;id&quot;: &quot;#lane1&quot;,
+        &quot;description&quot;: &quot;Lane 1&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;date&quot;: &quot;2013/05/30 04:00&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 1&quot;
+            },
+            {
+                &quot;date&quot;: &quot;2013/05/30 17:00&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 2&quot;
+            }
+        ]
+    },
+    {
+        &quot;id&quot;: &quot;#lane2&quot;,
+        &quot;description&quot;: &quot;Lane 2&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;startDate&quot;: &quot;2013/05/30 06:00&quot;,
+                &quot;endDate&quot;: &quot;2013/05/30 22:00&quot;,
+                &quot;progressDate&quot;: &quot;2013/05/30 18:00&quot;,
+                &quot;classes&quot;: [&quot;green&quot;],
+                &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+                &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+                &quot;label&quot;: &quot;Interval 1&quot;
+            }
+        ]
+    }
+]
+
+$(&quot;#demo2&quot;).vacuumGantt({
+    data: demo2Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/05/30 00:00',
+            endDate: '2013/05/30 23:59'
+        },
+        viewport: {
+            width: 1000 * 60 * 60 * 12,
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            color: '#428BCA',
+            timelines: [{
+                resolution: 1000 * 60 * 60,
+                dateFormat: 'HH:mm'
+            }]
+        }
+    }
+});
+</pre>
+    </div>
+    </div>
+    <div class="row no-space">
+        <div class="col-lg-12">
+            <!-- VacuumGantt placeholder -->
+            <div id="demo2"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <h3>Event/Interval tooltips (qTip)</h3>
+    <div class="row">
+        <div class="col-lg-12">
+<pre class="prettyprint linenums:1 lang-js small">
+&lt;style type=&quot;text/css&quot;&gt;
+    .customTooltip {
+        background: #C1E5AC;
+        border: 1px solid #006301;
+    }
+&lt;/style&gt;
+
+var demo3Data = [
+    {
+        &quot;id&quot;: &quot;#lane1&quot;,
+        &quot;description&quot;: &quot;Lane 1&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;date&quot;: &quot;2013/02/15&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 1&quot;,
+                &quot;tooltip&quot;: &quot;Additional info for Event 1&quot;
+            },
+            {
+                &quot;date&quot;: &quot;2013/02/25&quot;,
+                &quot;classes&quot;: [],
+                &quot;label&quot;: &quot;Event 2&quot;,
+                &quot;tooltip&quot;: &quot;Additional info for Event 2&quot;
+            }
+        ]
+    },
+    {
+        &quot;id&quot;: &quot;#lane2&quot;,
+        &quot;description&quot;: &quot;Lane 2&quot;,
+        &quot;items&quot;: [
+            {
+                &quot;startDate&quot;: &quot;2013/02/20&quot;,
+                &quot;endDate&quot;: &quot;2013/04/15&quot;,
+                &quot;progressDate&quot;: &quot;2013/04/15&quot;,
+                &quot;classes&quot;: [&quot;green&quot;],
+                &quot;progressColor&quot;: ['#0A7610', '#00AF06'],
+                &quot;unfinishedColor&quot;: [&quot;#4C4C4C&quot;, &quot;#7D7D7D&quot;],
+                &quot;label&quot;: &quot;Interval 1&quot;,
+                &quot;tooltip&quot;: {
+                    &quot;content&quot;: &quot;&lt;strong&gt;Interval 1&lt;/strong&gt; tooltip with custom style&quot;,
+                    &quot;classes&quot;: &quot;customTooltip&quot;
+                }
+            }
+        ]
+    }
+]
+
+$(&quot;#demo3&quot;).vacuumGantt({
+    data: demo3Data,
+    settings: {
+        boundaries: {
+            startDate: '2013/02/10',
+            endDate: '2013/04/30'
+        },
+        viewport: {
+            width: 30 * 24 * 60 * 60 * 1000
+        },
+        laneHeight: &quot;30px&quot;,
+        grid: {
+            color: 'gray',
+            timelines: [{
+                resolution: 1000 * 60 * 60 * 24,
+                dateFormat: 'DD'
+            }]
+        }
+    }
+});
+</pre>
+        </div>
+    </div>
+    <div class="row no-space">
+        <div class="col-lg-12">
+            <!-- VacuumGantt placeholder -->
+            <div id="demo3"></div>
+        </div>
+    </div>
+    <hr/>
+
+    <div class="footer">
+        <p>&copy; Vacuumlabs 2013</p>
+    </div>
+
+</div>
+<!-- /container -->
+
+</body>
+</html>
