@@ -1,1 +1,7 @@
-LanePlot component for jQuery
+=======
+laneplot
+========
+
+LanePlot - gantt chart component for jQuery
+
+original project financed by Mediworx
