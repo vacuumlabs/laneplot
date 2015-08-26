@@ -1,9 +1,9 @@
-LanePlot - gantt chart component for jQuery
-
-original project financed by Mediworx
+##LanePlot - gantt chart component for jQuery
 
 #Description
 Easy to use Gantt chart jQuery plugin.
+
+original project financed by Mediworx
 
 Gantt chart is used to display one-time events and time-interval based 
 
